@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="uz-UZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creavify - Onlayn Rasm Muharriri | Meme Generator</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=Pacifico&family=Bangers&family=Lobster&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Fredoka+One&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #1a1d23;
+            --surface: #252830;
+            --surface2: #2d3039;
+            --border: #3a3d47;
+            --text: #e2e4e9;
+            --text2: #a1a5b0;
+            --accent: #6c5ce7;
+            --accent2: #a29bfe;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.2s ease;
+            --canvas-max: 700px;
+            --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* === HEADER === */
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+        .header .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+        .header .logo span {
+            font-size: 0.7rem;
+            background: var(--surface2);
+            -webkit-text-fill-color: var(--text2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-left: 6px;
+            letter-spacing: 0;
+        }
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all var(--transition);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+        .btn:hover {
+            background: #3a3e4a;
+            border-color: #555;
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: scale(0.96);
+            transition: 0.05s;
+        }
+        .btn.accent {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.35);
+        }
+        .btn.accent:hover {
+            background: #7d6ff0;
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
+        }
+        .btn.danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+            font-weight: 600;
+        }
+        .btn.sm {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+        }
+        .btn.icon-only {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.1rem;
+        }
+        .btn.active-tool {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: #fff !important;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+        }
+
+        /* === MAIN LAYOUT === */
+        .main-container {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 140px);
+        }
+
+        /* === TOOL PANEL (Desktop sidebar) === */
+        .tool-panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 14px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 200px;
+            max-width: 220px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+        }
+        .tool-panel h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text2);
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+        .tool-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .tool-group .btn {
+            flex: 1;
+            min-width: 44px;
+            justify-content: center;
+            font-size: 0.78rem;
+            padding: 8px 6px;
+            border-radius: 6px;
+        }
+
+        /* === CANVAS AREA === */
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: auto;
+            min-height: 500px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+        .canvas-inner {
+            position: relative;
+            display: inline-block;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        canvas#mainCanvas {
+            display: block;
+            max-width: 100%;
+            max-height: 65vh;
+            cursor: crosshair;
+            background: #fff;
+            border-radius: 2px;
+        }
+        canvas#mainCanvas.selecting {
+            cursor: default;
+        }
+        canvas#mainCanvas.dragging-element {
+            cursor: grabbing;
+        }
+        .canvas-drop-zone {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .canvas-drop-zone .drop-hint {
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            display: none;
+        }
+        .canvas-wrapper.drag-over .drop-hint {
+            display: block;
+        }
+        .canvas-wrapper.drag-over canvas {
+            opacity: 0.5;
+        }
+
+        /* === PROPERTIES PANEL === */
+        .props-panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 14px;
+            border: 1px solid var(--border);
+            min-width: 220px;
+            max-width: 260px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+            max-height: 70vh;
+            position: sticky;
+            top: 80px;
+        }
+        .props-panel h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text2);
+            font-weight: 600;
+        }
+        .props-panel label {
+            font-size: 0.75rem;
+            color: var(--text2);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .props-panel input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .props-panel input[type="color"] {
+            width: 100%;
+            height: 36px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            background: var(--surface2);
+            padding: 2px;
+        }
+        .props-panel select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .props-panel .color-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .props-panel .color-dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all var(--transition);
+            flex-shrink: 0;
+        }
+        .props-panel .color-dot:hover {
+            border-color: #fff;
+            transform: scale(1.2);
+        }
+        .props-panel .color-dot.active {
+            border-color: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+        .no-selection {
+            color: var(--text2);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 20px 0;
+            opacity: 0.7;
+        }
+
+        /* === LAYER LIST === */
+        .layer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .layer-item {
+            padding: 8px 10px;
+            background: var(--surface2);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px solid transparent;
+            transition: all var(--transition);
+            gap: 8px;
+        }
+        .layer-item:hover {
+            border-color: #555;
+        }
+        .layer-item.selected {
+            border-color: var(--accent) !important;
+            background: #36384a;
+        }
+        .layer-item .layer-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .layer-item .layer-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .layer-item .layer-del {
+            cursor: pointer;
+            color: var(--danger);
+            font-size: 0.9rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .layer-item .layer-del:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        /* === MOBILE BOTTOM TOOLBAR === */
+        .mobile-toolbar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 8px 10px;
+            z-index: 100;
+            gap: 5px;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
+        }
+        .mobile-toolbar .btn {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            padding: 7px 9px;
+        }
+
+        /* === TOAST === */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 500;
+            z-index: 999;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+            font-size: 0.85rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        /* === MODAL === */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .modal h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .modal input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .modal .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                padding: 8px;
+                gap: 8px;
+            }
+            .tool-panel {
+                display: none;
+            }
+            .props-panel {
+                max-width: 100%;
+                max-height: none;
+                position: static;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px;
+                overflow-y: visible;
+            }
+            .props-panel>* {
+                flex: 1 1 auto;
+                min-width: 100px;
+            }
+            .props-panel h3 {
+                width: 100%;
+            }
+            .mobile-toolbar {
+                display: flex;
+            }
+            .canvas-wrapper {
+                min-height: 350px;
+                padding: 10px;
+                margin-bottom: 60px;
+            }
+            canvas#mainCanvas {
+                max-height: 45vh;
+            }
+            .header {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+            .header .logo {
+                font-size: 1.1rem;
+            }
+            .btn {
+                font-size: 0.7rem;
+                padding: 7px 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .header-actions {
+                gap: 3px;
+            }
+            .btn {
+                font-size: 0.65rem;
+                padding: 6px 7px;
+                gap: 3px;
+            }
+            .btn.icon-only {
+                width: 30px;
+                height: 30px;
+                font-size: 0.85rem;
+            }
+            canvas#mainCanvas {
+                max-height: 35vh;
+            }
+            .canvas-wrapper {
+                min-height: 250px;
+                padding: 6px;
+            }
+            .props-panel {
+                padding: 6px;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+        <div class="logo">🎨 Creavify <span>v2.0</span></div>
+        <div class="header-actions" id="headerActions">
+            <button class="btn sm" onclick="editor.uploadImage()" title="Rasm yuklash">📁 Yuklash</button>
+            <button class="btn sm" id="btnCrop" onclick="editor.toggleCropMode()" title="Kesish (Crop)">✂️ Crop</button>
+            <button class="btn sm" onclick="editor.undo()" title="Orqaga">↩️</button>
+            <button class="btn sm" onclick="editor.redo()" title="Oldinga">↪️</button>
+            <button class="btn sm" onclick="editor.resetAll()" title="Tozalash">🗑️</button>
+            <button class="btn accent sm" onclick="editor.downloadPNG()" title="PNG yuklab olish">⬇ PNG</button>
+            <button class="btn sm" onclick="editor.downloadJPG()" title="JPG yuklab olish">⬇ JPG</button>
+        </div>
+    </header>
+
+    <!-- ============ MAIN ============ -->
+    <div class="main-container">
+        <!-- Desktop Tool Panel -->
+        <aside class="tool-panel" id="toolPanel">
+            <h3>🛠 Asboblar</h3>
+            <div class="tool-group">
+                <button class="btn active-tool" data-tool="select" onclick="editor.setTool('select')">🖱️ Tanlash</button>
+                <button class="btn" data-tool="draw" onclick="editor.setTool('draw')">✏️ Chizish</button>
+            </div>
+            <div class="tool-group">
+                <button class="btn" onclick="editor.addText()">🔤 Matn</button>
+                <button class="btn" onclick="editor.addShape('rect')">⬜ Shakl</button>
+                <button class="btn" onclick="editor.addShape('circle')">⭕ Doira</button>
+            </div>
+            <div class="tool-group">
+                <button class="btn" onclick="editor.showEmojiPicker()">😀 Stiker</button>
+                <button class="btn" onclick="editor.flipHorizontal()">↔️ Flip</button>
+                <button class="btn" onclick="editor.rotate90()">🔄 90°</button>
+            </div>
+            <h3 style="margin-top:6px;">🎨 Filtrlar</h3>
+            <div class="tool-group">
+                <button class="btn sm" onclick="editor.setFilter('none')">Oddiy</button>
+                <button class="btn sm" onclick="editor.setFilter('grayscale(100%)')">⚫ B/W</button>
+                <button class="btn sm" onclick="editor.setFilter('sepia(80%)')">🟤 Sepia</button>
+                <button class="btn sm" onclick="editor.setFilter('brightness(130%)')">☀️ Yorqin</button>
+                <button class="btn sm" onclick="editor.setFilter('contrast(150%)')">🎯 Kontrast</button>
+                <button class="btn sm" onclick="editor.setFilter('blur(3px)')">🌫 Blur</button>
+                <button class="btn sm" onclick="editor.setFilter('invert(100%)')">🔲 Invert</button>
+                <button class="btn sm" onclick="editor.setFilter('hue-rotate(60deg)')">🌈 Hue</button>
+            </div>
+            <h3 style="margin-top:6px;">📐 Instagram</h3>
+            <div class="tool-group">
+                <button class="btn sm" onclick="editor.setCropPreset('1:1')">1:1 Post</button>
+                <button class="btn sm" onclick="editor.setCropPreset('4:5')">4:5 Port</button>
+                <button class="btn sm" onclick="editor.setCropPreset('9:16')">9:16 Story</button>
+                <button class="btn sm" onclick="editor.setCropPreset('16:9')">16:9 Land</button>
+            </div>
+            <button class="btn sm" style="margin-top:4px;" onclick="editor.toggleGrid()">📏 Grid</button>
+            <button class="btn sm" onclick="editor.toggleZoom()">🔍 Zoom: <span id="zoomLabel">100%</span></button>
+        </aside>
+
+        <!-- Canvas Area -->
+        <div class="canvas-wrapper" id="canvasWrapper"
+        ondragover="event.preventDefault(); this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="event.preventDefault(); this.classList.remove('drag-over'); editor.handleDrop(event)">
+        <div class="canvas-inner" id="canvasInner">
+            <canvas id="mainCanvas" width="800" height="800"></canvas>
+        </div>
+        <div class="canvas-drop-zone"><div class="drop-hint">📥 Rasmni shu yerga tashlang</div></div>
+    </div>
+
+    <!-- Properties Panel -->
+    <aside class="props-panel" id="propsPanel">
+        <h3>⚙️ Xususiyatlar</h3>
+        <div id="propsContent" class="no-selection">Element tanlang yoki yangi qo'shing ✨</div>
+        <h3 style="margin-top:6px;">📋 Qatlamlar</h3>
+        <div class="layer-list" id="layerList">
+            <div class="layer-item" style="opacity:0.6;">📷 Asosiy rasm</div>
+        </div>
+        <button class="btn sm danger" id="btnDeleteLayer" style="display:none;" onclick="editor.deleteSelectedLayer()">🗑️ Tanlangan qatlamni o'chirish</button>
+    </aside>
+</div>
+
+<!-- Mobile Bottom Toolbar -->
+<div class="mobile-toolbar" id="mobileToolbar">
+    <button class="btn active-tool" data-tool="select" onclick="editor.setTool('select')">🖱️</button>
+    <button class="btn" data-tool="draw" onclick="editor.setTool('draw')">✏️</button>
+    <button class="btn" onclick="editor.addText()">🔤 Matn</button>
+    <button class="btn" onclick="editor.addShape('rect')">⬜</button>
+    <button class="btn" onclick="editor.addShape('circle')">⭕</button>
+    <button class="btn" onclick="editor.showEmojiPicker()">😀</button>
+    <button class="btn" onclick="editor.setFilter('grayscale(100%)')">⚫</button>
+    <button class="btn" onclick="editor.setFilter('sepia(80%)')">🟤</button>
+    <button class="btn" onclick="editor.undo()">↩️</button>
+    <button class="btn" onclick="editor.redo()">↪️</button>
+    <button class="btn accent" onclick="editor.downloadPNG()">⬇</button>
+</div>
+
+<!-- Hidden File Input -->
+<input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="editor.handleFileUpload(event)">
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<!-- Emoji Picker Modal -->
+<div class="modal-overlay" id="emojiModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <h3>😀 Stiker (Emoji) tanlang</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:1.8rem;justify-content:center;max-height:300px;overflow-y:auto;" id="emojiGrid"></div>
+        <div class="modal-actions">
+            <button class="btn sm" onclick="document.getElementById('emojiModal').style.display='none'">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<!-- Text Input Modal -->
+<div class="modal-overlay" id="textModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <h3>🔤 Matn qo'shish</h3>
+        <input type="text" id="textInput" placeholder="Matnni kiriting..." maxlength="100">
+        <div class="modal-actions">
+            <button class="btn sm" onclick="document.getElementById('textModal').style.display='none'">Bekor qilish</button>
+            <button class="btn accent sm" onclick="editor.confirmAddText()">✅ Qo'shish</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    //  CREAVIFY - TO'LIQ ONLAYN RASM MUHARRIRI
+    //  25+ xususiyat, Canvas API, qatlamlar tizimi, mobil qo'llab-quvvatlash
+    // ============================================================
+
+    class ImageEditor {
+        constructor() {
+            this.canvas = document.getElementById('mainCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.canvasWrapper = document.getElementById('canvasWrapper');
+            this.canvasInner = document.getElementById('canvasInner');
+
+            // Ichki o'lchamlar (eksport sifati uchun)
+            this.width = 800;
+            this.height = 800;
+            this.canvas.width = this.width;
+            this.canvas.height = this.height;
+
+            // Asosiy rasm
+            this.baseImage = null;
+            this.baseImageOriginal = null; // Filtrlar uchun asl nusxa
+            this.imageX = 0;
+            this.imageY = 0;
+            this.imageW = this.width;
+            this.imageH = this.height;
+
+            // Qatlamlar
+            this.layers = [];
+            this.selectedLayerIndex = -1;
+
+            // Holat
+            this.currentTool = 'select';
+            this.currentFilter = 'none';
+            this.gridEnabled = false;
+            this.zoomLevel = 1;
+            this.cropMode = false;
+            this.cropPreset = null; // {ratioW, ratioH} yoki null
+            this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
+
+            // Chizish
+            this.isDrawing = false;
+            this.currentDrawingPoints = [];
+            this.brushColor = '#ff4444';
+            this.brushSize = 4;
+
+            // Element sudrash
+            this.isDragging = false;
+            this.dragStartX = 0;
+            this.dragStartY = 0;
+            this.dragLayerStartX = 0;
+            this.dragLayerStartY = 0;
+            this.hasMoved = false;
+
+            // Undo/Redo
+            this.undoStack = [];
+            this.redoStack = [];
+            this.maxUndo = 50;
+
+            // Emoji ro'yxati
+            this.emojiList = [
+                '😀', '😂', '🤣', '😍', '🥰', '😎', '🤩', '😡', '🤯', '🥳', '😱', '💀', '👻', '🎃', '👍', '👎', '❤️', '🔥',
+                '⭐', '✨', '💯', '🎉', '🎊', '📌', '📍', '🔔', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '💬', '💭',
+                '🐱', '🐶', '🦊', '🐼', '🦄', '🌈', '🍕', '🍔', '🌮', '☕', '🎸', '🎯', '🚀', '💡', '🎵', '🌻', '🍀', '👑',
+                '💎', '🎀', '🧸', '🌸', '🦋', '🐝', '🍩', '🧁', '🎪', '🪄'
+            ];
+
+            this.init();
+        }
+
+        init() {
+            this.setupEmojiGrid();
+            this.bindCanvasEvents();
+            this.render();
+            this.updateLayerList();
+            this.updateToolButtons();
+            this.saveState();
+            this.showToast('🎨 Creavify tayyor! Rasm yuklang yoki yaratishni boshlang.');
+        }
+
+        // ==================== EMODJI GRID ====================
+        setupEmojiGrid() {
+            const grid = document.getElementById('emojiGrid');
+            grid.innerHTML = '';
+            this.emojiList.forEach(emoji => {
+                const span = document.createElement('span');
+                span.textContent = emoji;
+                span.style.cssText =
+                    'cursor:pointer;padding:6px;border-radius:8px;transition:all 0.15s;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;';
+                span.onmouseenter = () => span.style.background = 'rgba(255,255,255,0.1)';
+                span.onmouseleave = () => span.style.background = 'transparent';
+                span.onclick = () => {
+                    this.addSticker(emoji);
+                    document.getElementById('emojiModal').style.display = 'none';
+                };
+                grid.appendChild(span);
+            });
+        }
+
+        // ==================== RASM YUKLASH ====================
+        uploadImage() {
+            document.getElementById('fileInput').click();
+        }
+
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            this.loadImageFromFile(file);
+            event.target.value = '';
+        }
+
+        handleDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                this.loadImageFromFile(file);
+            }
+        }
+
+        loadImageFromFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    this.baseImageOriginal = img;
+                    this.baseImage = img;
+                    // Canvas o'lchamini rasmga moslash
+                    const maxDim = 1200;
+                    let w = img.width;
+                    let h = img.height;
+                    if (Math.max(w, h) > maxDim) {
+                        const scale = maxDim / Math.max(w, h);
+                        w = Math.round(w * scale);
+                        h = Math.round(h * scale);
+                    }
+                    this.width = w;
+                    this.height = h;
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                    this.imageW = w;
+                    this.imageH = h;
+                    this.imageX = 0;
+                    this.imageY = 0;
+                    this.cropRect = { x: 0, y: 0, w: w, h: h };
+                    this.cropPreset = null;
+                    this.cropMode = false;
+                    this.layers = [];
+                    this.selectedLayerIndex = -1;
+                    this.currentFilter = 'none';
+                    this.undoStack = [];
+                    this.redoStack = [];
+                    this.saveState();
+                    this.render();
+                    this.updateLayerList();
+                    this.updatePropsPanel();
+                    this.showToast('✅ Rasm yuklandi! (' + img.width + '×' + img.height + 'px)');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ==================== TOOL MANAGEMENT ====================
+        setTool(tool) {
+            this.currentTool = tool;
+            this.cropMode = false;
+            this.selectedLayerIndex = -1;
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.render();
+            this.updatePropsPanel();
+            this.showToast('🛠 Asbob: ' + (tool === 'select' ? 'Tanlash' : tool === 'draw' ? 'Chizish' :
+                'Kesish'));
+        }
+
+        updateToolButtons() {
+            document.querySelectorAll('[data-tool]').forEach(btn => {
+                btn.classList.toggle('active-tool', btn.dataset.tool === this.currentTool);
+            });
+            document.getElementById('btnCrop')?.classList.toggle('active-tool', this.cropMode);
+        }
+
+        updateCanvasCursor() {
+            if (this.cropMode) {
+                this.canvas.style.cursor = 'crosshair';
+                this.canvas.classList.remove('selecting', 'dragging-element');
+            } else if (this.currentTool === 'draw') {
+                this.canvas.style.cursor = 'crosshair';
+                this.canvas.classList.remove('selecting', 'dragging-element');
+            } else {
+                this.canvas.style.cursor = 'default';
+                this.canvas.classList.add('selecting');
+                this.canvas.classList.remove('dragging-element');
+            }
+        }
+
+        // ==================== CANVAS EVENTS ====================
+        bindCanvasEvents() {
+            // Mouse events
+            this.canvas.addEventListener('mousedown', (e) => this.onPointerDown(e));
+            this.canvas.addEventListener('mousemove', (e) => this.onPointerMove(e));
+            this.canvas.addEventListener('mouseup', (e) => this.onPointerUp(e));
+            this.canvas.addEventListener('mouseleave', (e) => this.onPointerUp(e));
+            this.canvas.addEventListener('dblclick', (e) => this.onDoubleClick(e));
+
+            // Touch events
+            this.canvas.addEventListener('touchstart', (e) => { e.preventDefault();
+                this.onPointerDown(this.touchToMouse(e)); }, { passive: false });
+            this.canvas.addEventListener('touchmove', (e) => { e.preventDefault();
+                this.onPointerMove(this.touchToMouse(e)); }, { passive: false });
+            this.canvas.addEventListener('touchend', (e) => { this.onPointerUp(this.touchToMouse(e)); });
+            this.canvas.addEventListener('touchcancel', (e) => { this.onPointerUp(this.touchToMouse(e)); });
+        }
+
+        touchToMouse(e) {
+            if (e.touches.length === 0) return { clientX: this._lastX || 0, clientY: this._lastY || 0, button: 0 };
+            const t = e.touches[0];
+            this._lastX = t.clientX;
+            this._lastY = t.clientY;
+            return { clientX: t.clientX, clientY: t.clientY, button: 0 };
+        }
+
+        getCanvasPos(e) {
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = this.width / rect.width;
+            const scaleY = this.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY,
+                scaleX,
+                scaleY
+            };
+        }
+
+        onPointerDown(e) {
+            if (e.button !== undefined && e.button !== 0) return; // Faqat chap tugma
+            const pos = this.getCanvasPos(e);
+
+            if (this.cropMode) {
+                this.cropDragStart = { x: pos.x, y: pos.y };
+                this.cropDragInitial = { ...this.cropRect };
+                this._cropDragging = true;
+                return;
+            }
+
+            if (this.currentTool === 'draw') {
+                this.isDrawing = true;
+                this.currentDrawingPoints = [{ x: pos.x, y: pos.y }];
+                this.hasMoved = false;
+                return;
+            }
+
+            // Select mode - elementni topish
+            const hitIndex = this.hitTest(pos.x, pos.y);
+            if (hitIndex >= 0) {
+                this.selectedLayerIndex = hitIndex;
+                this.isDragging = true;
+                this.hasMoved = false;
+                this.dragStartX = pos.x;
+                this.dragStartY = pos.y;
+                const layer = this.layers[hitIndex];
+                this.dragLayerStartX = layer.x;
+                this.dragLayerStartY = layer.y;
+                this.canvas.classList.add('dragging-element');
+                this.updatePropsPanel();
+                this.updateLayerList();
+                this.render();
+            } else {
+                this.selectedLayerIndex = -1;
+                this.updatePropsPanel();
+                this.updateLayerList();
+                this.render();
+            }
+        }
+
+        onPointerMove(e) {
+            const pos = this.getCanvasPos(e);
+
+            if (this._cropDragging && this.cropMode) {
+                const dx = pos.x - this.cropDragStart.x;
+                const dy = pos.y - this.cropDragStart.y;
+                this.cropRect.x = Math.max(0, Math.min(this.width - this.cropRect.w, this.cropDragInitial.x + dx));
+                this.cropRect.y = Math.max(0, Math.min(this.height - this.cropRect.h, this.cropDragInitial.y + dy));
+                this.render();
+                return;
+            }
+
+            if (this.isDrawing && this.currentTool === 'draw') {
+                this.currentDrawingPoints.push({ x: pos.x, y: pos.y });
+                this.hasMoved = true;
+                // Jonli chizish
+                this.render();
+                this.ctx.save();
+                this.ctx.strokeStyle = this.brushColor;
+                this.ctx.lineWidth = this.brushSize;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                this.ctx.setLineDash([]);
+                this.ctx.globalAlpha = 1;
+                this.ctx.beginPath();
+                const pts = this.currentDrawingPoints;
+                this.ctx.moveTo(pts[0].x, pts[0].y);
+                for (let i = 1; i < pts.length; i++) {
+                    this.ctx.lineTo(pts[i].x, pts[i].y);
+                }
+                this.ctx.stroke();
+                this.ctx.restore();
+                return;
+            }
+
+            if (this.isDragging && this.selectedLayerIndex >= 0) {
+                const dx = pos.x - this.dragStartX;
+                const dy = pos.y - this.dragStartY;
+                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) this.hasMoved = true;
+                const layer = this.layers[this.selectedLayerIndex];
+                layer.x = this.dragLayerStartX + dx;
+                layer.y = this.dragLayerStartY + dy;
+                this.render();
+            }
+        }
+
+        onPointerUp(e) {
+            if (this._cropDragging && this.cropMode) {
+                this._cropDragging = false;
+                this.saveState();
+                return;
+            }
+
+            if (this.isDrawing && this.currentTool === 'draw') {
+                this.isDrawing = false;
+                if (this.currentDrawingPoints.length > 1) {
+                    this.layers.push({
+                        type: 'drawing',
+                        points: [...this.currentDrawingPoints],
+                        brushColor: this.brushColor,
+                        brushSize: this.brushSize,
+                        x: 0,
+                        y: 0,
+                        width: this.width,
+                        height: this.height,
+                        opacity: 1,
+                        rotation: 0,
+                    });
+                    this.selectedLayerIndex = this.layers.length - 1;
+                    this.saveState();
+                    this.updateLayerList();
+                    this.updatePropsPanel();
+                }
+                this.currentDrawingPoints = [];
+                this.render();
+                return;
+            }
+
+            if (this.isDragging) {
+                this.isDragging = false;
+                this.canvas.classList.remove('dragging-element');
+                if (this.hasMoved && this.selectedLayerIndex >= 0) {
+                    this.saveState();
+                }
+            }
+        }
+
+        onDoubleClick(e) {
+            const pos = this.getCanvasPos(e);
+            const hitIndex = this.hitTest(pos.x, pos.y);
+            if (hitIndex >= 0 && this.layers[hitIndex].type === 'text') {
+                this.selectedLayerIndex = hitIndex;
+                const layer = this.layers[hitIndex];
+                document.getElementById('textInput').value = layer.text;
+                document.getElementById('textModal').style.display = 'flex';
+                this._editingLayerIndex = hitIndex;
+                this.updatePropsPanel();
+                this.updateLayerList();
+                this.render();
+            }
+        }
+
+        // ==================== HIT TEST ====================
+        hitTest(mx, my) {
+            // Orqadan oldinga qarab tekshirish (yuqori qatlam birinchi)
+            for (let i = this.layers.length - 1; i >= 0; i--) {
+                const layer = this.layers[i];
+                let left, top, right, bottom;
+
+                if (layer.type === 'text') {
+                    this.ctx.save();
+                    this.ctx.font = `${layer.fontSize || 40}px "${layer.font || 'Arial'}"`;
+                    const metrics = this.ctx.measureText(layer.text || '');
+                    this.ctx.restore();
+                    const textH = (layer.fontSize || 40);
+                    const textW = metrics.width;
+                    left = layer.x - textW / 2;
+                    top = layer.y - textH / 2;
+                    right = layer.x + textW / 2;
+                    bottom = layer.y + textH / 2;
+                } else if (layer.type === 'sticker') {
+                    const size = layer.stickerSize || 50;
+                    left = layer.x - size / 2;
+                    top = layer.y - size / 2;
+                    right = layer.x + size / 2;
+                    bottom = layer.y + size / 2;
+                } else if (layer.type === 'shape') {
+                    left = layer.x;
+                    top = layer.y;
+                    right = layer.x + (layer.shapeWidth || 100);
+                    bottom = layer.y + (layer.shapeHeight || 100);
+                } else if (layer.type === 'drawing') {
+                    // Chizilgan elementlar uchun soddalashtirilgan hit test
+                    const tolerance = (layer.brushSize || 4) + 8;
+                    for (const pt of (layer.points || [])) {
+                        if (Math.abs(pt.x - mx) < tolerance && Math.abs(pt.y - my) < tolerance) {
+                            return i;
+                        }
+                    }
+                    continue;
+                } else {
+                    continue;
+                }
+
+                if (mx >= left && mx <= right && my >= top && my <= bottom) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        // ==================== RENDER ====================
+        render() {
+            const ctx = this.ctx;
+            ctx.clearRect(0, 0, this.width, this.height);
+
+            // Orqa fon (shaxmat naqsh + oq)
+            this.drawCheckerboard(ctx, this.width, this.height);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, this.width, this.height);
+
+            // Asosiy rasmni chizish (filtr bilan)
+            if (this.baseImage) {
+                ctx.save();
+                if (this.currentFilter && this.currentFilter !== 'none') {
+                    ctx.filter = this.currentFilter;
+                }
+                ctx.drawImage(this.baseImage, this.imageX, this.imageY, this.imageW, this.imageH);
+                ctx.restore();
+            }
+
+            // Barcha qatlamlarni chizish
+            for (let i = 0; i < this.layers.length; i++) {
+                const layer = this.layers[i];
+                ctx.save();
+                ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
+
+                if (layer.type === 'text') {
+                    this.renderTextLayer(ctx, layer, i);
+                } else if (layer.type === 'sticker') {
+                    this.renderStickerLayer(ctx, layer, i);
+                } else if (layer.type === 'shape') {
+                    this.renderShapeLayer(ctx, layer, i);
+                } else if (layer.type === 'drawing') {
+                    this.renderDrawingLayer(ctx, layer, i);
+                }
+
+                ctx.restore();
+
+                // Tanlangan qatlam uchun chegara
+                if (i === this.selectedLayerIndex && this.currentTool === 'select' && !this.cropMode) {
+                    ctx.save();
+                    ctx.setLineDash([6, 3]);
+                    ctx.strokeStyle = '#6c5ce7';
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 1;
+                    let bx, by, bw, bh;
+                    if (layer.type === 'text') {
+                        ctx.font = `${layer.fontSize || 40}px "${layer.font || 'Arial'}"`;
+                        const m = ctx.measureText(layer.text || '');
+                        bw = m.width + 10;
+                        bh = (layer.fontSize || 40) + 10;
+                        bx = layer.x - bw / 2;
+                        by = layer.y - bh / 2;
+                    } else if (layer.type === 'sticker') {
+                        const s = layer.stickerSize || 50;
+                        bw = s + 8;
+                        bh = s + 8;
+                        bx = layer.x - bw / 2;
+                        by = layer.y - bh / 2;
+                    } else if (layer.type === 'shape') {
+                        bx = layer.x - 4;
+                        by = layer.y - 4;
+                        bw = (layer.shapeWidth || 100) + 8;
+                        bh = (layer.shapeHeight || 100) + 8;
+                    } else {
+                        bx = 0;
+                        by = 0;
+                        bw = this.width;
+                        bh = this.height;
+                    }
+                    ctx.strokeRect(bx, by, bw, bh);
+                    ctx.setLineDash([]);
+                    ctx.restore();
+                }
+            }
+
+            // Grid
+            if (this.gridEnabled) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 0.5;
+                ctx.globalAlpha = 1;
+                const gs = 50;
+                for (let x = gs; x < this.width; x += gs) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, this.height);
+                    ctx.stroke();
+                }
+                for (let y = gs; y < this.height; y += gs) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(this.width, y);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // Crop overlay
+            if (this.cropMode) {
+                ctx.save();
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'rgba(0,0,0,0.55)';
+                ctx.fillRect(0, 0, this.width, this.height);
+                ctx.clearRect(this.cropRect.x, this.cropRect.y, this.cropRect.w, this.cropRect.h);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 4]);
+                ctx.strokeRect(this.cropRect.x, this.cropRect.y, this.cropRect.w, this.cropRect.h);
+                ctx.setLineDash([]);
+                // O'lcham ko'rsatish
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 13px Poppins, sans-serif';
+                ctx.fillText(`${Math.round(this.cropRect.w)}×${Math.round(this.cropRect.h)}`,
+                    this.cropRect.x + 6, this.cropRect.y + 20);
+                ctx.restore();
+            }
+        }
+
+        drawCheckerboard(ctx, w, h) {
+            const sq = 16;
+            ctx.save();
+            ctx.globalAlpha = 0.3;
+            for (let y = 0; y < h; y += sq) {
+                for (let x = 0; x < w; x += sq) {
+                    ctx.fillStyle = ((x / sq + y / sq) % 2 === 0) ? '#e0e0e0' : '#f5f5f5';
+                    ctx.fillRect(x, y, sq, sq);
+                }
+            }
+            ctx.restore();
+        }
+
+        renderTextLayer(ctx, layer, index) {
+            const font = `${layer.fontSize || 40}px "${layer.font || 'Arial'}"`;
+            ctx.font = font;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Soya
+            if (layer.shadowEnabled) {
+                ctx.shadowColor = layer.shadowColor || 'rgba(0,0,0,0.6)';
+                ctx.shadowBlur = layer.shadowBlur || 4;
+                ctx.shadowOffsetX = layer.shadowOffsetX || 2;
+                ctx.shadowOffsetY = layer.shadowOffsetY || 2;
+            }
+
+            // Stroke (kontur)
+            if (layer.strokeEnabled && layer.strokeWidth > 0) {
+                ctx.strokeStyle = layer.strokeColor || '#000';
+                ctx.lineWidth = layer.strokeWidth || 2;
+                ctx.lineJoin = 'round';
+                ctx.strokeText(layer.text, layer.x, layer.y);
+            }
+
+            // Asosiy matn
+            ctx.fillStyle = layer.color || '#ffffff';
+            ctx.fillText(layer.text, layer.x, layer.y);
+
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        renderStickerLayer(ctx, layer, index) {
+            const size = layer.stickerSize || 50;
+            ctx.font = `${size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(layer.emoji || '😀', layer.x, layer.y);
+        }
+
+        renderShapeLayer(ctx, layer, index) {
+            const w = layer.shapeWidth || 100;
+            const h = layer.shapeHeight || 100;
+            ctx.fillStyle = layer.fillColor || 'rgba(108,92,231,0.5)';
+            ctx.strokeStyle = layer.shapeStrokeColor || '#6c5ce7';
+            ctx.lineWidth = layer.shapeStrokeWidth || 2;
+
+            if (layer.shapeType === 'circle') {
+                const cx = layer.x + w / 2;
+                const cy = layer.y + h / 2;
+                const r = Math.min(w, h) / 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                ctx.fillRect(layer.x, layer.y, w, h);
+                ctx.strokeRect(layer.x, layer.y, w, h);
+            }
+        }
+
+        renderDrawingLayer(ctx, layer, index) {
+            const pts = layer.points || [];
+            if (pts.length < 2) return;
+            ctx.strokeStyle = layer.brushColor || '#ff4444';
+            ctx.lineWidth = layer.brushSize || 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(pts[0].x, pts[0].y);
+            for (let i = 1; i < pts.length; i++) {
+                ctx.lineTo(pts[i].x, pts[i].y);
+            }
+            ctx.stroke();
+        }
+
+        // ==================== MATN QO'SHISH ====================
+        addText() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('textModal').style.display = 'flex';
+            this._editingLayerIndex = -1;
+            setTimeout(() => document.getElementById('textInput').focus(), 150);
+        }
+
+        confirmAddText() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                this.showToast('⚠️ Iltimos, matn kiriting');
+                return;
+            }
+            document.getElementById('textModal').style.display = 'none';
+
+            if (this._editingLayerIndex >= 0 && this.layers[this._editingLayerIndex]?.type === 'text') {
+                // Mavjud matnni tahrirlash
+                this.layers[this._editingLayerIndex].text = text;
+                this.selectedLayerIndex = this._editingLayerIndex;
+                this.saveState();
+            } else {
+                // Yangi matn qatlami
+                const layer = {
+                    type: 'text',
+                    text: text,
+                    x: this.width / 2,
+                    y: this.height / 2,
+                    font: 'Poppins',
+                    fontSize: 44,
+                    color: '#ffffff',
+                    strokeEnabled: true,
+                    strokeColor: '#000000',
+                    strokeWidth: 3,
+                    shadowEnabled: true,
+                    shadowColor: 'rgba(0,0,0,0.5)',
+                    shadowBlur: 6,
+                    shadowOffsetX: 2,
+                    shadowOffsetY: 2,
+                    opacity: 1,
+                    rotation: 0,
+                };
+                this.layers.push(layer);
+                this.selectedLayerIndex = this.layers.length - 1;
+                this.saveState();
+            }
+            this._editingLayerIndex = -1;
+            this.currentTool = 'select';
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            this.showToast('✅ Matn qo\'shildi');
+        }
+
+        // ==================== STIKER QO'SHISH ====================
+        showEmojiPicker() {
+            document.getElementById('emojiModal').style.display = 'flex';
+        }
+
+        addSticker(emoji) {
+            const layer = {
+                type: 'sticker',
+                emoji: emoji,
+                x: this.width / 2,
+                y: this.height / 2,
+                stickerSize: 60,
+                opacity: 1,
+                rotation: 0,
+            };
+            this.layers.push(layer);
+            this.selectedLayerIndex = this.layers.length - 1;
+            this.currentTool = 'select';
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.saveState();
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            this.showToast('😀 Stiker qo\'shildi');
+        }
+
+        // ==================== SHAKL QO'SHISH ====================
+        addShape(type) {
+            const layer = {
+                type: 'shape',
+                shapeType: type,
+                x: this.width / 2 - 50,
+                y: this.height / 2 - 50,
+                shapeWidth: 100,
+                shapeHeight: 100,
+                fillColor: 'rgba(108,92,231,0.4)',
+                shapeStrokeColor: '#6c5ce7',
+                shapeStrokeWidth: 3,
+                opacity: 0.85,
+                rotation: 0,
+            };
+            this.layers.push(layer);
+            this.selectedLayerIndex = this.layers.length - 1;
+            this.currentTool = 'select';
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.saveState();
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            this.showToast('🔷 Shakl qo\'shildi');
+        }
+
+        // ==================== FILTRLAR ====================
+        setFilter(filter) {
+            this.currentFilter = filter;
+            this.saveState();
+            this.render();
+            this.showToast('🎨 Filtr qo\'llandi: ' + filter);
+        }
+
+        // ==================== CROP ====================
+        toggleCropMode() {
+            this.cropMode = !this.cropMode;
+            if (this.cropMode) {
+                this.currentTool = 'select';
+                this.selectedLayerIndex = -1;
+                this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
+                if (this.cropPreset) {
+                    this.applyPresetToCropRect();
+                }
+            }
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.updatePropsPanel();
+            this.render();
+            if (this.cropMode) {
+                this.showToast('✂️ Crop rejimi - kesish maydonini sudrab sozlang');
+            }
+        }
+
+        setCropPreset(presetStr) {
+            const [rw, rh] = presetStr.split(':').map(Number);
+            this.cropPreset = { ratioW: rw, ratioH: rh };
+            this.cropMode = true;
+            this.currentTool = 'select';
+            this.selectedLayerIndex = -1;
+            this.applyPresetToCropRect();
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.updatePropsPanel();
+            this.render();
+            this.showToast('📐 Instagram ' + presetStr + ' crop tanlandi');
+        }
+
+        applyPresetToCropRect() {
+            if (!this.cropPreset) {
+                this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
+                return;
+            }
+            const { ratioW, ratioH } = this.cropPreset;
+            let cw, ch;
+            if (this.width / this.height > ratioW / ratioH) {
+                ch = this.height;
+                cw = Math.round(ch * ratioW / ratioH);
+            } else {
+                cw = this.width;
+                ch = Math.round(cw * ratioH / ratioW);
+            }
+            cw = Math.min(cw, this.width);
+            ch = Math.min(ch, this.height);
+            this.cropRect = {
+                x: Math.round((this.width - cw) / 2),
+                y: Math.round((this.height - ch) / 2),
+                w: cw,
+                h: ch,
+            };
+        }
+
+        applyCrop() {
+            if (!this.cropMode) return;
+            const cr = this.cropRect;
+            // Crop qilingan rasmni yangi canvasga chizish
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = cr.w;
+            tempCanvas.height = cr.h;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(this.canvas, cr.x, cr.y, cr.w, cr.h, 0, 0, cr.w, cr.h);
+
+            // Qatlamlarni koordinatalarini yangilash
+            const offsetX = -cr.x;
+            const offsetY = -cr.y;
+            this.layers.forEach(layer => {
+                layer.x += offsetX;
+                layer.y += offsetY;
+                if (layer.type === 'shape') {
+                    // shape koordinatalari o'zgarmaydi, faqat x,y siljiydi
+                }
+                if (layer.type === 'drawing') {
+                    layer.points = layer.points.map(p => ({ x: p.x + offsetX, y: p.y + offsetY }));
+                }
+            });
+
+            // Canvasni yangilash
+            const newImg = new Image();
+            newImg.src = tempCanvas.toDataURL();
+            newImg.onload = () => {
+                this.baseImage = newImg;
+                this.baseImageOriginal = newImg;
+                this.width = cr.w;
+                this.height = cr.h;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.imageW = cr.w;
+                this.imageH = cr.h;
+                this.imageX = 0;
+                this.imageY = 0;
+                this.cropMode = false;
+                this.cropPreset = null;
+                this.cropRect = { x: 0, y: 0, w: cr.w, h: cr.h };
+                this.currentFilter = 'none';
+                this.updateToolButtons();
+                this.updateCanvasCursor();
+                this.saveState();
+                this.render();
+                this.updateLayerList();
+                this.updatePropsPanel();
+                this.showToast('✅ Crop qo\'llandi! (' + cr.w + '×' + cr.h + 'px)');
+            };
+        }
+
+        cancelCrop() {
+            this.cropMode = false;
+            this.cropPreset = null;
+            this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.render();
+            this.showToast('↩️ Crop bekor qilindi');
+        }
+
+        // ==================== FLIP & ROTATE ====================
+        flipHorizontal() {
+            if (!this.baseImage) {
+                this.showToast('⚠️ Avval rasm yuklang');
+                return;
+            }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = this.width;
+            tempCanvas.height = this.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.translate(this.width, 0);
+            tempCtx.scale(-1, 1);
+            tempCtx.drawImage(this.baseImage, 0, 0, this.width, this.height);
+            const newImg = new Image();
+            newImg.src = tempCanvas.toDataURL();
+            newImg.onload = () => {
+                this.baseImage = newImg;
+                this.baseImageOriginal = newImg;
+                this.currentFilter = 'none';
+                // Qatlamlarni ham flip qilish
+                this.layers.forEach(layer => {
+                    layer.x = this.width - layer.x;
+                });
+                this.saveState();
+                this.render();
+                this.showToast('↔️ Rasm gorizontal aylantirildi');
+            };
+        }
+
+        rotate90() {
+            if (!this.baseImage) {
+                this.showToast('⚠️ Avval rasm yuklang');
+                return;
+            }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = this.height;
+            tempCanvas.height = this.width;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.translate(this.height, 0);
+            tempCtx.rotate(Math.PI / 2);
+            tempCtx.drawImage(this.baseImage, 0, 0, this.width, this.height);
+            const newImg = new Image();
+            newImg.src = tempCanvas.toDataURL();
+            newImg.onload = () => {
+                const oldW = this.width;
+                const oldH = this.height;
+                this.baseImage = newImg;
+                this.baseImageOriginal = newImg;
+                this.width = oldH;
+                this.height = oldW;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.imageW = this.width;
+                this.imageH = this.height;
+                this.imageX = 0;
+                this.imageY = 0;
+                this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
+                this.currentFilter = 'none';
+                // Qatlamlarni aylantirish
+                this.layers.forEach(layer => {
+                    const oldX = layer.x;
+                    const oldY = layer.y;
+                    layer.x = oldY;
+                    layer.y = oldW - oldX;
+                });
+                this.saveState();
+                this.render();
+                this.showToast('🔄 Rasm 90° aylantirildi');
+            };
+        }
+
+        // ==================== GRID & ZOOM ====================
+        toggleGrid() {
+            this.gridEnabled = !this.gridEnabled;
+            this.render();
+            this.showToast(this.gridEnabled ? '📏 Grid yoqildi' : '📏 Grid o\'chirildi');
+        }
+
+        toggleZoom() {
+            if (this.zoomLevel >= 2) this.zoomLevel = 0.5;
+            else if (this.zoomLevel >= 1.5) this.zoomLevel = 2;
+            else if (this.zoomLevel >= 1) this.zoomLevel = 1.5;
+            else this.zoomLevel = 1;
+            const displayW = Math.round(this.width * this.zoomLevel);
+            this.canvas.style.width = displayW + 'px';
+            this.canvas.style.height = 'auto';
+            document.getElementById('zoomLabel').textContent = Math.round(this.zoomLevel * 100) + '%';
+            this.showToast('🔍 Zoom: ' + Math.round(this.zoomLevel * 100) + '%');
+        }
+
+        // ==================== UNDO / REDO ====================
+        saveState() {
+            const state = {
+                layers: JSON.parse(JSON.stringify(this.layers)),
+                filter: this.currentFilter,
+                width: this.width,
+                height: this.height,
+                imageW: this.imageW,
+                imageH: this.imageH,
+                imageX: this.imageX,
+                imageY: this.imageY,
+                cropRect: { ...this.cropRect },
+                baseImageSrc: this.baseImage ? this.canvasToDataURL() : null,
+            };
+            this.undoStack.push(state);
+            if (this.undoStack.length > this.maxUndo) this.undoStack.shift();
+            this.redoStack = [];
+        }
+
+        canvasToDataURL() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = this.width;
+            tempCanvas.height = this.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, this.width, this.height);
+            if (this.baseImage) {
+                tempCtx.drawImage(this.baseImage, this.imageX, this.imageY, this.imageW, this.imageH);
+            }
+            return tempCanvas.toDataURL('image/png');
+        }
+
+        undo() {
+            if (this.undoStack.length <= 1) {
+                this.showToast('↩️ Orqaga qaytarish uchun ma\'lumot yo\'q');
+                return;
+            }
+            const currentState = this.undoStack.pop();
+            this.redoStack.push(currentState);
+            const prevState = this.undoStack[this.undoStack.length - 1];
+            this.restoreState(prevState);
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            this.showToast('↩️ Orqaga qaytarildi');
+        }
+
+        redo() {
+            if (this.redoStack.length === 0) {
+                this.showToast('↪️ Oldinga qaytarish uchun ma\'lumot yo\'q');
+                return;
+            }
+            const nextState = this.redoStack.pop();
+            this.undoStack.push(nextState);
+            this.restoreState(nextState);
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            this.showToast('↪️ Oldinga qaytarildi');
+        }
+
+        restoreState(state) {
+            this.layers = JSON.parse(JSON.stringify(state.layers));
+            this.currentFilter = state.filter;
+            this.width = state.width;
+            this.height = state.height;
+            this.canvas.width = this.width;
+            this.canvas.height = this.height;
+            this.imageW = state.imageW;
+            this.imageH = state.imageH;
+            this.imageX = state.imageX;
+            this.imageY = state.imageY;
+            this.cropRect = state.cropRect || { x: 0, y: 0, w: this.width, h: this.height };
+            if (state.baseImageSrc) {
+                const img = new Image();
+                img.src = state.baseImageSrc;
+                img.onload = () => {
+                    this.baseImage = img;
+                    this.baseImageOriginal = img;
+                    this.render();
+                };
+            } else {
+                this.baseImage = null;
+                this.baseImageOriginal = null;
+            }
+            if (this.selectedLayerIndex >= this.layers.length) {
+                this.selectedLayerIndex = this.layers.length - 1;
+            }
+        }
+
+        // ==================== DELETE LAYER ====================
+        deleteSelectedLayer() {
+            if (this.selectedLayerIndex < 0 || this.selectedLayerIndex >= this.layers.length) return;
+            this.layers.splice(this.selectedLayerIndex, 1);
+            this.selectedLayerIndex = Math.min(this.selectedLayerIndex, this.layers.length - 1);
+            this.saveState();
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            this.showToast('🗑️ Qatlam o\'chirildi');
+        }
+
+        // ==================== RESET ====================
+        resetAll() {
+            if (!confirm('Barcha o\'zgarishlarni tozalashni xohlaysizmi?')) return;
+            this.baseImage = null;
+            this.baseImageOriginal = null;
+            this.layers = [];
+            this.selectedLayerIndex = -1;
+            this.currentFilter = 'none';
+            this.cropMode = false;
+            this.cropPreset = null;
+            this.gridEnabled = false;
+            this.zoomLevel = 1;
+            this.width = 800;
+            this.height = 800;
+            this.canvas.width = this.width;
+            this.canvas.height = this.height;
+            this.canvas.style.width = '';
+            this.canvas.style.height = '';
+            this.imageW = this.width;
+            this.imageH = this.height;
+            this.imageX = 0;
+            this.imageY = 0;
+            this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
+            this.undoStack = [];
+            this.redoStack = [];
+            this.currentTool = 'select';
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.saveState();
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            document.getElementById('zoomLabel').textContent = '100%';
+            this.showToast('🔄 Hammasi tozalandi');
+        }
+
+        // ==================== DOWNLOAD ====================
+        downloadPNG() {
+            this.download('png');
+        }
+
+        downloadJPG() {
+            this.download('jpg');
+        }
+
+        download(format) {
+            // Crop mode bo'lsa, avval cropni qo'llashni so'rash
+            if (this.cropMode) {
+                if (confirm('Crop rejimi faol. Avval cropni qo\'llashni xohlaysizmi?')) {
+                    this.applyCrop();
+                    setTimeout(() => this.doDownload(format), 300);
+                    return;
+                }
+            }
+            this.doDownload(format);
+        }
+
+        doDownload(format) {
+            // Eksport uchun vaqtinchalik render (gridsiz, crop overlaysiz)
+            const wasGrid = this.gridEnabled;
+            const wasCrop = this.cropMode;
+            const wasSel = this.selectedLayerIndex;
+            this.gridEnabled = false;
+            this.cropMode = false;
+            this.selectedLayerIndex = -1;
+            this.render();
+
+            const link = document.createElement('a');
+            const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+            const ext = format === 'jpg' ? 'jpg' : 'png';
+            link.download = `creavify_${Date.now()}.${ext}`;
+            link.href = this.canvas.toDataURL(mime, format === 'jpg' ? 0.92 : undefined);
+            link.click();
+
+            // Qayta tiklash
+            this.gridEnabled = wasGrid;
+            this.cropMode = wasCrop;
+            this.selectedLayerIndex = wasSel;
+            this.render();
+            this.showToast('⬇ Rasm yuklab olindi! (' + ext.toUpperCase() + ')');
+        }
+
+        // ==================== UI YANGILASH ====================
+        updateLayerList() {
+            const list = document.getElementById('layerList');
+            let html = '';
+            html +=
+                `<div class="layer-item${this.selectedLayerIndex === -1 && this.baseImage ? ' selected' : ''}" onclick="editor.selectLayer(-1)" style="cursor:pointer;">
+              <span class="layer-icon">📷</span>
+              <span class="layer-name">Asosiy rasm</span>
+            </div>`;
+            this.layers.forEach((layer, i) => {
+                let icon = '📄';
+                let name = '';
+                if (layer.type === 'text') { icon = '🔤';
+                    name = layer.text?.substring(0, 25) || 'Matn'; } else if (layer.type === 'sticker') { icon =
+                        '😀';
+                    name = layer.emoji || 'Stiker'; } else if (layer.type === 'shape') { icon = layer
+                        .shapeType === 'circle' ? '⭕' : '⬜';
+                    name = layer.shapeType === 'circle' ? 'Doira' : 'To\'rtburchak'; } else if (layer.type ===
+                    'drawing') { icon = '✏️';
+                    name = 'Chizma'; }
+                html += `
+              <div class="layer-item${i === this.selectedLayerIndex ? ' selected' : ''}" onclick="editor.selectLayer(${i})">
+                <span class="layer-icon">${icon}</span>
+                <span class="layer-name">${name}</span>
+                <span class="layer-del" onclick="event.stopPropagation(); editor.selectLayer(${i}); editor.deleteSelectedLayer();">×</span>
+              </div>`;
+            });
+            list.innerHTML = html;
+            document.getElementById('btnDeleteLayer').style.display =
+                this.selectedLayerIndex >= 0 ? 'block' : 'none';
+        }
+
+        selectLayer(index) {
+            this.selectedLayerIndex = index;
+            this.currentTool = 'select';
+            this.cropMode = false;
+            this.updateToolButtons();
+            this.updateCanvasCursor();
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+        }
+
+        updatePropsPanel() {
+            const container = document.getElementById('propsContent');
+            const layer = this.selectedLayerIndex >= 0 ? this.layers[this.selectedLayerIndex] : null;
+
+            if (!layer) {
+                container.innerHTML =
+                    '<div class="no-selection">Element tanlang yoki yangi qo\'shing ✨<br><br><small>Maslahat: Canvasdagi elementni bosing yoki qatlamlar ro\'yxatidan tanlang</small></div>';
+                document.getElementById('btnDeleteLayer').style.display = 'none';
+                return;
+            }
+            document.getElementById('btnDeleteLayer').style.display = 'block';
+
+            let html = '';
+            html += `<label>Shaffoflik: ${Math.round((layer.opacity||1)*100)}%</label>
+            <input type="range" min="10" max="100" value="${Math.round((layer.opacity||1)*100)}" oninput="editor.updateLayerProp('opacity', this.value/100)">`;
+
+            if (layer.type === 'text') {
+                html += `<label>📝 Matn</label>
+            <input type="text" value="${this.escapeHtml(layer.text||'')}" onchange="editor.updateLayerProp('text', this.value)" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-family:inherit;">`;
+                html += `<label>🔤 Shrift</label>
+            <select onchange="editor.updateLayerProp('font', this.value)">
+              ${['Poppins','Roboto','Oswald','Pacifico','Bangers','Lobster','Montserrat','Playfair Display','Fredoka One','Arial','Impact','Verdana','Georgia','Courier New'].map(f => `<option value="${f}" ${(layer.font||'Poppins')===f?'selected':''}>${f}</option>`).join('')}
+            </select>`;
+                html +=
+                    `<label>📏 O'lcham: ${layer.fontSize||40}px</label>
+            <input type="range" min="12" max="150" value="${layer.fontSize||40}" oninput="editor.updateLayerProp('fontSize', parseInt(this.value))">`;
+                html += `<label>🎨 Rang</label>
+            <input type="color" value="${layer.color||'#ffffff'}" oninput="editor.updateLayerProp('color', this.value)">
+            <div class="color-presets">
+              ${['#ffffff','#000000','#ff4444','#ff8800','#ffdd00','#2ecc71','#3498db','#6c5ce7','#e91e63','#00bcd4'].map(c => `<span class="color-dot${layer.color===c?' active':''}" style="background:${c};" onclick="editor.updateLayerProp('color','${c}')"></span>`).join('')}
+            </div>`;
+                html +=
+                    `<label><input type="checkbox" ${layer.strokeEnabled?'checked':''} onchange="editor.updateLayerProp('strokeEnabled', this.checked)"> ✏️ Kontur</label>`;
+                if (layer.strokeEnabled) {
+                    html +=
+                        `<label>Kontur rangi</label><input type="color" value="${layer.strokeColor||'#000000'}" oninput="editor.updateLayerProp('strokeColor', this.value)">`;
+                    html +=
+                        `<label>Kontur qalinligi: ${layer.strokeWidth||2}</label><input type="range" min="1" max="10" value="${layer.strokeWidth||2}" oninput="editor.updateLayerProp('strokeWidth', parseInt(this.value))">`;
+                }
+                html +=
+                    `<label><input type="checkbox" ${layer.shadowEnabled?'checked':''} onchange="editor.updateLayerProp('shadowEnabled', this.checked)"> 🌑 Soya</label>`;
+            }
+
+            if (layer.type === 'sticker') {
+                html +=
+                    `<label>📏 Stiker o'lchami: ${layer.stickerSize||60}px</label>
+            <input type="range" min="20" max="200" value="${layer.stickerSize||60}" oninput="editor.updateLayerProp('stickerSize', parseInt(this.value))">`;
+                html +=
+                    `<label>😀 Emoji</label><div style="font-size:2rem;text-align:center;padding:10px;background:var(--surface2);border-radius:8px;">${layer.emoji||'😀'}</div>`;
+            }
+
+            if (layer.type === 'shape') {
+                html += `<label>📐 Eni: ${layer.shapeWidth||100}px</label>
+            <input type="range" min="20" max="500" value="${layer.shapeWidth||100}" oninput="editor.updateLayerProp('shapeWidth', parseInt(this.value))">`;
+                html += `<label>📏 Bo'yi: ${layer.shapeHeight||100}px</label>
+            <input type="range" min="20" max="500" value="${layer.shapeHeight||100}" oninput="editor.updateLayerProp('shapeHeight', parseInt(this.value))">`;
+                html += `<label>🎨 To'ldirish rangi</label>
+            <input type="color" value="${layer.fillColor||'rgba(108,92,231,0.4)'}" oninput="editor.updateLayerProp('fillColor', this.value)">`;
+                html += `<label>✏️ Chiziq rangi</label>
+            <input type="color" value="${layer.shapeStrokeColor||'#6c5ce7'}" oninput="editor.updateLayerProp('shapeStrokeColor', this.value)">`;
+                html +=
+                    `<label>Chiziq qalinligi: ${layer.shapeStrokeWidth||2}</label><input type="range" min="1" max="15" value="${layer.shapeStrokeWidth||2}" oninput="editor.updateLayerProp('shapeStrokeWidth', parseInt(this.value))">`;
+            }
+
+            if (layer.type === 'drawing') {
+                html += `<label>🎨 Chizish rangi</label>
+            <input type="color" value="${layer.brushColor||'#ff4444'}" oninput="editor.updateLayerProp('brushColor', this.value)">`;
+                html +=
+                    `<label>Qalinlik: ${layer.brushSize||4}px</label><input type="range" min="1" max="30" value="${layer.brushSize||4}" oninput="editor.updateLayerProp('brushSize', parseInt(this.value))">`;
+                html +=
+                    `<p style="font-size:0.7rem;color:var(--text2);">Nuqtalar soni: ${(layer.points||[]).length}</p>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        updateLayerProp(prop, value) {
+            if (this.selectedLayerIndex < 0 || this.selectedLayerIndex >= this.layers.length) return;
+            const layer = this.layers[this.selectedLayerIndex];
+            layer[prop] = value;
+            this.render();
+            this.updateLayerList();
+            this.updatePropsPanel();
+            // Kechiktirilgan saveState (slider uchun)
+            clearTimeout(this._saveTimeout);
+            this._saveTimeout = setTimeout(() => this.saveState(), 400);
+        }
+
+        escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ==================== TOAST ====================
+        showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // ==================== KLAVIATURA QISQA YO'LLARI ====================
+        handleKeyboard(e) {
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault();
+                this.undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault();
+                this.redo(); }
+            if (e.ctrlKey && e.key === 's') { e.preventDefault();
+                this.downloadPNG(); }
+            if (e.key === 'Delete' && this.selectedLayerIndex >= 0) { e.preventDefault();
+                this.deleteSelectedLayer(); }
+            if (e.key === 'Escape') {
+                if (this.cropMode) { this.cancelCrop(); } else { this.selectedLayerIndex = -1;
+                    this.render();
+                    this.updateLayerList();
+                    this.updatePropsPanel(); }
+            }
+            if (e.key === 'g' && !e.ctrlKey) { this.toggleGrid(); }
+            if (e.key === 'f' && !e.ctrlKey) { this.toggleCropMode(); }
+        }
+    }
+
+    // ==================== INIT ====================
+    const editor = new ImageEditor();
+
+    // Klaviatura qisqa yo'llari
+    document.addEventListener('keydown', (e) => editor.handleKeyboard(e));
+
+    // Crop tugmasi uchun qo'shimcha handler
+    document.getElementById('btnCrop')?.addEventListener('click', function() {
+        if (editor.cropMode) {
+            editor.applyCrop();
+        } else {
+            editor.toggleCropMode();
+        }
+    });
+
+    // Text modal uchun Enter tugmasi
+    document.getElementById('textInput')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            editor.confirmAddText();
+        }
+    });
+
+    // Boshlang'ich holatni saqlash
+    editor.saveState();
+    editor.render();
+
+    console.log('🎨 Creavify tayyor!');
+    console.log('📋 Xususiyatlar:');
+    console.log('  ✅ Rasm yuklash (drag & drop + fayl)');
+    console.log('  ✅ Matn qatlamlari (10+ shrift, rang, kontur, soya)');
+    console.log('  ✅ Stiker/emoji (50+ emoji)');
+    console.log('  ✅ Shakllar (to\'rtburchak, doira)');
+    console.log('  ✅ Chizish asbobi (erkin qo\'lda)');
+    console.log('  ✅ Filtrlar (8 xil: B/W, sepia, yorqin, kontrast, blur, invert, hue)');
+    console.log('  ✅ Instagram crop presets (1:1, 4:5, 9:16, 16:9)');
+    console.log('  ✅ Flip gorizontal, 90° aylantirish');
+    console.log('  ✅ Undo/Redo (50 qadamgacha)');
+    console.log('  ✅ Grid rejimi');
+    console.log('  ✅ Zoom (50% - 200%)');
+    console.log('  ✅ Qatlamlar boshqaruvi');
+    console.log('  ✅ Shaffoflik nazorati');
+    console.log('  ✅ Rang palitrasi');
+    console.log('  ✅ PNG/JPG eksport');
+    console.log('  ✅ Mobil moslashuvchan (touch + responsiv)');
+    console.log('  ✅ Klaviatura qisqa yo\'llari (Ctrl+Z/Y/S, Delete, Esc, G, F)');
+    console.log('  🚀 Jami 25+ xususiyat');
+</script>
+</body>
+</html>
