@@ -31,6 +31,7 @@ body{
   overflow:hidden;
   -webkit-font-smoothing:antialiased;
 }
+:root{ --app-vh: 100vh; }
 button{font-family:inherit;cursor:pointer;}
 input,select{font-family:inherit;}
 ::-webkit-scrollbar{width:8px;height:8px;}
@@ -38,7 +39,7 @@ input,select{font-family:inherit;}
 ::-webkit-scrollbar-track{background:transparent;}
 
 /* ===== LAYOUT ===== */
-#app{display:flex;flex-direction:column;height:100vh;}
+#app{display:flex;flex-direction:column;height:100vh;height:var(--app-vh,100vh);}
 
 /* TOPBAR */
 #topbar{
@@ -115,6 +116,14 @@ input,select{font-family:inherit;}
 #stage-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;}
 #stage{position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 #stage canvas{display:block;touch-action:none;}
+#gridOverlay{
+  position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;display:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.25) 1px, transparent 1px);
+  background-size:10% 10%;
+}
+#gridOverlay.on{display:block;}
 
 /* ===== MOBILE PANEL TOGGLE (hidden on desktop) ===== */
 #panelToggle{
@@ -145,10 +154,12 @@ input,select{font-family:inherit;}
   #main{flex-direction:column;}
 
   #toolrail{
-    order:3;width:100%;min-width:0;height:70px;min-height:70px;
+    order:3;width:100%;min-width:0;height:calc(70px + env(safe-area-inset-bottom));
+    min-height:calc(70px + env(safe-area-inset-bottom));
     flex-direction:row;align-items:center;justify-content:flex-start;
     border-right:none;border-top:1px solid var(--line);
-    padding:6px 10px;overflow-x:auto;overflow-y:hidden;gap:8px;
+    padding:6px 10px calc(6px + env(safe-area-inset-bottom));overflow-x:auto;overflow-y:hidden;gap:8px;
+    background:var(--ink-2);position:relative;z-index:60;
   }
   .tool{width:58px;height:56px;flex-shrink:0;}
   .rail-sep{width:1px;height:34px;min-width:1px;margin:0 2px;}
@@ -159,7 +170,8 @@ input,select{font-family:inherit;}
   #canvas-info{bottom:8px;font-size:10px;padding:5px 10px;gap:8px;}
 
   #rightpanel{
-    order:2;position:fixed;left:0;right:0;bottom:70px;
+    order:2;position:fixed;left:0;right:0;
+    bottom:calc(70px + env(safe-area-inset-bottom));
     width:100%;min-width:0;height:48vh;max-height:64vh;
     border-left:none;border-top:1px solid var(--line);
     border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.5);
@@ -172,7 +184,7 @@ input,select{font-family:inherit;}
     border-radius:50%;background:var(--ink-3);border:1px solid var(--line);color:var(--text-dim);
     align-items:center;justify-content:center;font-size:16px;z-index:2;
   }
-  #panelToggle{display:flex;}
+  #panelToggle{display:flex;bottom:calc(84px + env(safe-area-inset-bottom));}
 
   .modal{width:94vw;}
   .modal-body{padding:16px;}
@@ -187,9 +199,11 @@ input,select{font-family:inherit;}
 #canvas-info{
   position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
   background:rgba(20,22,30,.85);border:1px solid var(--line);border-radius:20px;
-  padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);
-  display:flex;gap:12px;backdrop-filter:blur(6px);
+  padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);
+  display:flex;align-items:center;gap:8px;backdrop-filter:blur(6px);flex-wrap:wrap;justify-content:center;max-width:94%;
 }
+#canvas-info .mini-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;line-height:1;min-width:26px;}
+#canvas-info .mini-btn.on{background:var(--gold);color:#1a1200;border-color:var(--gold);}
 
 /* RIGHT PANEL */
 #rightpanel{
@@ -352,6 +366,14 @@ input[type=file]{display:none;}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
         <span>Fon</span>
       </button>
+      <button class="tool" data-tool="draw" title="Qalam bilan chizish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        <span>Chizish</span>
+      </button>
+      <button class="tool" data-tool="bgcolor" title="Fon rangi / gradient">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 4-6 5 5" /></svg>
+        <span>Fon</span>
+      </button>
       <div class="rail-sep"></div>
       <button class="tool" data-tool="templates" title="Shablonlar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -373,12 +395,17 @@ input[type=file]{display:none;}
       <div id="stage-wrap">
         <div id="stage">
           <canvas id="c"></canvas>
+          <div id="gridOverlay"></div>
         </div>
       </div>
       <div id="canvas-info">
-        <span id="infoSize">1080 × 1080</span>
+        <button class="mini-btn" id="zoomOut" title="Kichraytirish" style="padding:4px 8px;">−</button>
         <span id="infoZoom">100%</span>
+        <button class="mini-btn" id="zoomIn" title="Kattalashtirish" style="padding:4px 8px;">+</button>
+        <button class="mini-btn" id="zoomFit" title="Ekranga moslash" style="padding:4px 8px;">⤢</button>
+        <span id="infoSize">1080 × 1080</span>
         <span id="infoObjs">0 obyekt</span>
+        <button class="mini-btn" id="gridToggle" title="Panjara" style="padding:4px 8px;">#</button>
       </div>
     </div>
 
@@ -434,7 +461,54 @@ input[type=file]{display:none;}
   <div class="modal">
     <div class="modal-head"><h3>😊 Stiker qo'shish</h3><button class="modal-close" data-close>&times;</button></div>
     <div class="modal-body">
+      <button class="mini-btn" id="stickerUploadBtn" style="width:100%;margin-bottom:14px;">🖼 O'z rasmingizni stiker sifatida yuklash</button>
       <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-draw">
+  <div class="modal">
+    <div class="modal-head"><h3>✏️ Qalam bilan chizish</h3><button class="modal-close" data-close="draw">&times;</button></div>
+    <div class="modal-body">
+      <p class="tip">Chizish rejimi yoqilganda canvas ustida barmoq/sichqoncha bilan erkin chizishingiz mumkin. Tugatgach shu oynadan "Chizishni tugatish" ni bosing.</p>
+      <div class="field" style="margin-top:14px;"><label>Rang</label><input type="color" id="drawColor" value="#e8b84b" style="width:100%;height:40px;padding:2px;"></div>
+      <div class="field"><label>Qalam qalinligi: <span id="drawWidthVal">6</span>px</label><input type="range" id="drawWidth" min="1" max="60" value="6"></div>
+      <div class="field"><label>Shaffoflik: <span id="drawOpVal">100</span>%</label><input type="range" id="drawOpacity" min="10" max="100" value="100"></div>
+      <div class="row-inline">
+        <button class="tbtn primary" id="drawStartBtn" style="flex:1;justify-content:center;">✏️ Chizishni boshlash</button>
+        <button class="tbtn" id="drawStopBtn" style="flex:1;justify-content:center;">⏹ Tugatish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-bgcolor">
+  <div class="modal">
+    <div class="modal-head"><h3>🎨 Fon rangi</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <div class="btn-grp" style="margin-bottom:14px;">
+        <button class="mini-btn on" id="bgModeSolid">Bir xil rang</button>
+        <button class="mini-btn" id="bgModeGrad">Gradient</button>
+      </div>
+      <div id="bgSolidWrap">
+        <div class="field"><label>Fon rangi</label><input type="color" id="bgSolidColor" value="#ffffff" style="width:100%;height:40px;padding:2px;"></div>
+      </div>
+      <div id="bgGradWrap" class="hidden">
+        <div class="field-row">
+          <div class="field"><label>Rang 1</label><input type="color" id="bgGradColor1" value="#e8b84b" style="width:100%;height:40px;padding:2px;"></div>
+          <div class="field"><label>Rang 2</label><input type="color" id="bgGradColor2" value="#12141c" style="width:100%;height:40px;padding:2px;"></div>
+        </div>
+        <div class="field"><label>Yo'nalish</label><select id="bgGradDir">
+          <option value="v">Vertikal</option>
+          <option value="h">Gorizontal</option>
+          <option value="d">Diagonal</option>
+        </select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="tbtn" data-close>Bekor qilish</button>
+      <button class="tbtn primary" id="bgColorApplyBtn">Qo'llash</button>
     </div>
   </div>
 </div>
@@ -567,6 +641,16 @@ input[type=file]{display:none;}
 (function(){
 "use strict";
 
+/* ---------- real viewport height fix (mobile browser chrome bug) ---------- */
+function setAppVH(){
+  const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+  document.documentElement.style.setProperty('--app-vh', h+'px');
+}
+setAppVH();
+window.addEventListener('resize', setAppVH);
+window.addEventListener('orientationchange', ()=> setTimeout(setAppVH,200));
+if(window.visualViewport) window.visualViewport.addEventListener('resize', setAppVH);
+
 /* ---------- constants ---------- */
 const PRESETS = [
   {id:'ig-post', name:'Instagram Post', w:1080, h:1080},
@@ -607,6 +691,9 @@ let history = [];
 let historyIndex = -1;
 let isRestoring = false;
 let cropRectObj = null;
+let userZoom = 1;
+let pinchStartDist = 0;
+let pinchStartZoom = 1;
 
 /* ---------- init ---------- */
 window.addEventListener('DOMContentLoaded', () => {
@@ -644,7 +731,8 @@ function fitStage(){
   const availW = wrap.clientWidth - 48;
   const availH = wrap.clientHeight - 48;
   const cw = canvas.getWidth(), ch = canvas.getHeight();
-  const scale = Math.min(availW/cw, availH/ch, 1);
+  const baseScale = Math.min(availW/cw, availH/ch, 1);
+  const scale = Math.max(0.05, baseScale * userZoom);
   const cc = stage.querySelector('.canvas-container');
   stage.style.width = (cw*scale)+'px';
   stage.style.height = (ch*scale)+'px';
@@ -656,6 +744,8 @@ function fitStage(){
   }
   document.getElementById('infoZoom').textContent = Math.round(scale*100)+'%';
 }
+function zoomBy(factor){ userZoom = Math.min(4, Math.max(0.25, userZoom*factor)); fitStage(); }
+function zoomReset(){ userZoom = 1; fitStage(); }
 
 /* ---------- preset bar ---------- */
 function buildPresetBar(){
@@ -669,6 +759,7 @@ function buildPresetBar(){
       currentPreset = p;
       [...bar.children].forEach(c=>c.classList.remove('active'));
       chip.classList.add('active');
+      userZoom = 1;
       setCanvasSize(p.w,p.h);
       saveState();
       toast(`O'lcham o'zgartirildi: ${p.name}`);
@@ -722,6 +813,28 @@ function wireEvents(){
   // brand
   document.getElementById('addBrandColor').addEventListener('click', addBrandColor);
 
+  // draw tool
+  ['drawColor','drawWidth','drawOpacity'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updateBrush);
+  });
+  document.getElementById('drawStartBtn').addEventListener('click', startDrawing);
+  document.getElementById('drawStopBtn').addEventListener('click', stopDrawing);
+
+  // background color modal
+  document.getElementById('bgModeSolid').addEventListener('click', ()=>{
+    document.getElementById('bgModeSolid').classList.add('on');
+    document.getElementById('bgModeGrad').classList.remove('on');
+    document.getElementById('bgSolidWrap').classList.remove('hidden');
+    document.getElementById('bgGradWrap').classList.add('hidden');
+  });
+  document.getElementById('bgModeGrad').addEventListener('click', ()=>{
+    document.getElementById('bgModeGrad').classList.add('on');
+    document.getElementById('bgModeSolid').classList.remove('on');
+    document.getElementById('bgGradWrap').classList.remove('hidden');
+    document.getElementById('bgSolidWrap').classList.add('hidden');
+  });
+  document.getElementById('bgColorApplyBtn').addEventListener('click', applyBgColor);
+
   // caption
   document.getElementById('genCaptionBtn').addEventListener('click', generateCaptions);
 
@@ -741,6 +854,16 @@ function wireEvents(){
   canvas.on('selection:created', ()=>{ updatePropsPanel(); onSelectionMobile(); });
   canvas.on('selection:updated', ()=>{ updatePropsPanel(); onSelectionMobile(); });
   canvas.on('selection:cleared', updatePropsPanel);
+
+  // zoom + grid
+  document.getElementById('zoomIn').addEventListener('click', ()=> zoomBy(1.2));
+  document.getElementById('zoomOut').addEventListener('click', ()=> zoomBy(1/1.2));
+  document.getElementById('zoomFit').addEventListener('click', zoomReset);
+  document.getElementById('gridToggle').addEventListener('click', (e)=>{
+    document.getElementById('gridOverlay').classList.toggle('on');
+    e.currentTarget.classList.toggle('on');
+  });
+  wirePinchZoom();
 
   // mobile bottom-sheet panel
   document.getElementById('panelToggle').addEventListener('click', ()=>{
@@ -773,6 +896,87 @@ function onSelectionMobile(){
   document.getElementById('rightpanel').classList.add('show');
 }
 
+function wirePinchZoom(){
+  const wrap = document.getElementById('stage-wrap');
+  function dist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
+  wrap.addEventListener('touchstart', e=>{
+    if(e.touches.length===2){
+      pinchStartDist = dist(e.touches);
+      pinchStartZoom = userZoom;
+    }
+  }, {passive:true});
+  wrap.addEventListener('touchmove', e=>{
+    if(e.touches.length===2){
+      e.preventDefault();
+      const d = dist(e.touches);
+      if(pinchStartDist>0){
+        userZoom = Math.min(4, Math.max(0.25, pinchStartZoom * (d/pinchStartDist)));
+        fitStage();
+      }
+    }
+  }, {passive:false});
+  wrap.addEventListener('touchend', ()=>{ pinchStartDist = 0; });
+}
+
+/* ---------- draw / brush tool ---------- */
+function openDrawModal(){ openModal('modal-draw'); }
+function updateBrush(){
+  const color = document.getElementById('drawColor').value;
+  const width = +document.getElementById('drawWidth').value;
+  const op = +document.getElementById('drawOpacity').value;
+  document.getElementById('drawWidthVal').textContent = width;
+  document.getElementById('drawOpVal').textContent = op;
+  if(!canvas.freeDrawingBrush) canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+  canvas.freeDrawingBrush.width = width;
+  canvas.freeDrawingBrush.color = hexToRgba(color, op/100);
+}
+function hexToRgba(hex, alpha){
+  const m = hex.match(/^#([0-9a-f]{6})$/i);
+  if(!m) return hex;
+  const n = parseInt(m[1],16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`;
+}
+function startDrawing(){
+  updateBrush();
+  canvas.isDrawingMode = true;
+  document.querySelectorAll('.tool').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tool[data-tool="draw"]').classList.add('active');
+  toast('Chizish rejimi yoqildi — canvasda chizing');
+  closeAllModals();
+}
+function stopDrawing(){
+  canvas.isDrawingMode = false;
+  document.querySelectorAll('.tool').forEach(t=>t.classList.remove('active'));
+  saveState();
+  toast('Chizish tugatildi');
+  closeAllModals();
+}
+
+/* ---------- background color / gradient ---------- */
+function openBgColorModal(){ openModal('modal-bgcolor'); }
+function applyBgColor(){
+  const mode = document.getElementById('bgModeGrad').classList.contains('on') ? 'grad':'solid';
+  if(mode==='solid'){
+    canvas.setBackgroundColor(document.getElementById('bgSolidColor').value, ()=> canvas.renderAll());
+  } else {
+    const c1 = document.getElementById('bgGradColor1').value;
+    const c2 = document.getElementById('bgGradColor2').value;
+    const dir = document.getElementById('bgGradDir').value;
+    const w = canvas.getWidth(), h = canvas.getHeight();
+    let coords = {x1:0,y1:0,x2:0,y2:h};
+    if(dir==='h') coords = {x1:0,y1:0,x2:w,y2:0};
+    else if(dir==='d') coords = {x1:0,y1:0,x2:w,y2:h};
+    const grad = new fabric.Gradient({
+      type:'linear', coords,
+      colorStops:[{offset:0,color:c1},{offset:1,color:c2}],
+    });
+    canvas.setBackgroundColor(grad, ()=> canvas.renderAll());
+  }
+  saveState();
+  closeAllModals();
+  toast('Fon yangilandi');
+}
+
 function handleTool(tool, btn){
   document.querySelectorAll('.tool').forEach(t=>t.classList.remove('active'));
   switch(tool){
@@ -780,6 +984,8 @@ function handleTool(tool, btn){
     case 'text': addText(); break;
     case 'shape': openModal('modal-shape'); break;
     case 'sticker': openModal('modal-sticker'); break;
+    case 'draw': openDrawModal(); break;
+    case 'bgcolor': openBgColorModal(); break;
     case 'filters': openFiltersModal(); break;
     case 'crop': openModal('modal-crop'); break;
     case 'bgremove': openBgModal(); break;
@@ -794,13 +1000,15 @@ function openModal(id){ closeAllModals(); document.getElementById(id).classList.
 function closeAllModals(){ document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('show')); }
 
 /* ---------- image upload ---------- */
+let uploadMode = 'image';
 function onFileChosen(e){
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = ev=>{
     fabric.Image.fromURL(ev.target.result, img=>{
-      const maxDim = Math.min(canvas.getWidth(), canvas.getHeight()) * 0.8;
+      const isSticker = uploadMode==='sticker';
+      const maxDim = Math.min(canvas.getWidth(), canvas.getHeight()) * (isSticker? 0.35 : 0.8);
       const scale = Math.min(maxDim/img.width, maxDim/img.height, 1);
       img.set({
         left: canvas.getWidth()/2,
@@ -812,7 +1020,8 @@ function onFileChosen(e){
       canvas.setActiveObject(img);
       canvas.renderAll();
       saveState();
-      toast('Rasm qo\'shildi');
+      toast(isSticker? 'Stiker qo\'shildi' : 'Rasm qo\'shildi');
+      uploadMode = 'image';
     });
   };
   reader.readAsDataURL(file);
@@ -850,6 +1059,11 @@ function addShape(type){
 
 /* ---------- stickers ---------- */
 function buildEmojiGrid(){
+  document.getElementById('stickerUploadBtn').addEventListener('click', ()=>{
+    uploadMode = 'sticker';
+    document.getElementById('fileInput').click();
+    closeAllModals();
+  });
   const grid = document.getElementById('emojiGrid');
   EMOJIS.forEach(em=>{
     const b = document.createElement('button');
@@ -952,13 +1166,23 @@ function updatePropsPanel(){
       <button id="pAlignL" class="${obj.textAlign==='left'?'on':''}">⯇</button>
       <button id="pAlignC" class="${obj.textAlign==='center'?'on':''}">≡</button>
       <button id="pAlignR" class="${obj.textAlign==='right'?'on':''}">⯈</button>
+    </div></div>
+    <div class="field-row">
+      <div class="field"><label>Kontur rangi</label><input type="color" id="pStroke" value="${toHex(obj.stroke||'#000000')}" style="height:36px;padding:2px;"></div>
+      <div class="field"><label>Kontur: <span id="pSWVal">${obj.strokeWidth||0}</span></label><input type="range" id="pStrokeW" min="0" max="15" value="${obj.strokeWidth||0}"></div>
+    </div>
+    <div class="field"><label>Soya (shadow)</label><div class="btn-grp">
+      <button id="pShadowOn" class="${obj.shadow?'on':''}">Yoqish</button>
+      <button id="pShadowOff" class="${!obj.shadow?'on':''}">O'chirish</button>
     </div></div>`;
   } else if(['rect','circle','triangle'].includes(obj.type)){
     html += `<div class="field-row">
-      <div class="field"><label>To'ldirish</label><input type="color" id="pFill" value="${toHex(obj.fill)}" style="height:36px;padding:2px;"></div>
+      <div class="field"><label>To'ldirish</label><input type="color" id="pFill" value="${toHex(typeof obj.fill==='string'?obj.fill:'#e8b84b')}" style="height:36px;padding:2px;"></div>
       <div class="field"><label>Chegara</label><input type="color" id="pStroke" value="${toHex(obj.stroke||'#000000')}" style="height:36px;padding:2px;"></div>
     </div>
-    <div class="field"><label>Chegara qalinligi: <span id="pSWVal">${obj.strokeWidth||0}</span></label><input type="range" id="pStrokeW" min="0" max="30" value="${obj.strokeWidth||0}"></div>`;
+    <div class="field"><label>Chegara qalinligi: <span id="pSWVal">${obj.strokeWidth||0}</span></label><input type="range" id="pStrokeW" min="0" max="30" value="${obj.strokeWidth||0}"></div>
+    <div class="check-row" style="border:none;padding:4px 0;"><input type="checkbox" id="pGradToggle" ${typeof obj.fill==='object'?'checked':''}><div class="lbl" style="font-size:12.5px;">Gradient to'ldirish</div></div>
+    <div class="field-row ${typeof obj.fill==='object'?'':'hidden'}" id="pGradWrap"><div class="field"><label>Rang 2</label><input type="color" id="pFill2" value="#12141c" style="height:36px;padding:2px;"></div></div>`;
   } else if(obj.type==='line'){
     html += `<div class="field"><label>Rang</label><input type="color" id="pStroke" value="${toHex(obj.stroke)}" style="height:36px;padding:2px;"></div>
     <div class="field"><label>Qalinlik: <span id="pSWVal">${obj.strokeWidth}</span></label><input type="range" id="pStrokeW" min="1" max="30" value="${obj.strokeWidth}"></div>`;
@@ -972,8 +1196,10 @@ function updatePropsPanel(){
     <div class="grid-2">
       <button class="mini-btn" id="pFront">Eng oldinga</button>
       <button class="mini-btn" id="pBack">Eng orqaga</button>
-      <button class="mini-btn" id="pFlipH">↔ Aylantirish</button>
-      <button class="mini-btn" id="pFlipV">↕ Aylantirish</button>
+      <button class="mini-btn" id="pCenterH">↔ Markazga (X)</button>
+      <button class="mini-btn" id="pCenterV">↕ Markazga (Y)</button>
+      <button class="mini-btn" id="pFlipH">⇋ Aylantirish</button>
+      <button class="mini-btn" id="pFlipV">⇅ Aylantirish</button>
       <button class="mini-btn" id="pDup">⧉ Nusxa (Ctrl+D)</button>
       <button class="mini-btn" id="pDel" style="color:var(--danger);">🗑 O'chirish</button>
     </div>`;
@@ -1006,8 +1232,17 @@ function bindPropsEvents(obj){
   if($('pAlignL')) $('pAlignL').onclick = ()=> upd(()=>{ obj.set('textAlign','left'); updatePropsPanel(); });
   if($('pAlignC')) $('pAlignC').onclick = ()=> upd(()=>{ obj.set('textAlign','center'); updatePropsPanel(); });
   if($('pAlignR')) $('pAlignR').onclick = ()=> upd(()=>{ obj.set('textAlign','right'); updatePropsPanel(); });
+  if($('pShadowOn')) $('pShadowOn').onclick = ()=> upd(()=>{ obj.set('shadow', new fabric.Shadow({color:'rgba(0,0,0,0.6)', blur:12, offsetX:4, offsetY:4})); updatePropsPanel(); });
+  if($('pShadowOff')) $('pShadowOff').onclick = ()=> upd(()=>{ obj.set('shadow', null); updatePropsPanel(); });
 
   if($('pFill')) $('pFill').oninput = e=> upd(()=> obj.set('fill', e.target.value));
+  if($('pGradToggle')){
+    $('pGradToggle').onchange = e=>{
+      document.getElementById('pGradWrap').classList.toggle('hidden', !e.target.checked);
+      applyShapeFill(obj);
+    };
+  }
+  if($('pFill2')) $('pFill2').oninput = ()=> applyShapeFill(obj);
   if($('pStroke')) $('pStroke').oninput = e=> upd(()=> obj.set('stroke', e.target.value));
   if($('pStrokeW')) $('pStrokeW').oninput = e=>{ obj.set('strokeWidth', +e.target.value); $('pSWVal').textContent = e.target.value; canvas.renderAll(); };
   if($('pStrokeW')) $('pStrokeW').onchange = ()=> saveState();
@@ -1020,10 +1255,29 @@ function bindPropsEvents(obj){
 
   if($('pFront')) $('pFront').onclick = ()=> upd(()=> canvas.bringToFront(obj));
   if($('pBack')) $('pBack').onclick = ()=> upd(()=> canvas.sendToBack(obj));
+  if($('pCenterH')) $('pCenterH').onclick = ()=> upd(()=> canvas.centerObjectH(obj));
+  if($('pCenterV')) $('pCenterV').onclick = ()=> upd(()=> canvas.centerObjectV(obj));
   if($('pFlipH')) $('pFlipH').onclick = ()=> upd(()=> obj.set('flipX', !obj.flipX));
   if($('pFlipV')) $('pFlipV').onclick = ()=> upd(()=> obj.set('flipY', !obj.flipY));
   if($('pDup')) $('pDup').onclick = duplicateSelected;
   if($('pDel')) $('pDel').onclick = ()=>{ canvas.remove(obj); canvas.discardActiveObject(); canvas.renderAll(); saveState(); updatePropsPanel(); };
+}
+
+function applyShapeFill(obj){
+  const grad = document.getElementById('pGradToggle');
+  if(grad && grad.checked){
+    const c1 = document.getElementById('pFill').value;
+    const c2 = document.getElementById('pFill2').value;
+    const w = obj.width*(obj.scaleX||1), h = obj.height*(obj.scaleY||1);
+    obj.set('fill', new fabric.Gradient({
+      type:'linear', coords:{x1:0,y1:0,x2:w,y2:h},
+      colorStops:[{offset:0,color:c1},{offset:1,color:c2}],
+    }));
+  } else if(grad){
+    obj.set('fill', document.getElementById('pFill').value);
+  }
+  canvas.renderAll();
+  saveState();
 }
 
 function duplicateSelected(){
@@ -1191,6 +1445,7 @@ function applyBgRemove(){
     stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
   }
   ctx.putImageData(imgData,0,0);
+  featherAlphaEdges(ctx, w, h, 2);
   const dataUrl = off.toDataURL('image/png');
   fabric.Image.fromURL(dataUrl, newImg=>{
     newImg.set({
@@ -1207,6 +1462,41 @@ function applyBgRemove(){
     closeAllModals();
     toast('Fon olib tashlandi');
   });
+}
+
+function featherAlphaEdges(ctx, w, h, radius){
+  const imgData = ctx.getImageData(0,0,w,h);
+  const src = imgData.data;
+  const alpha = new Uint8ClampedArray(w*h);
+  for(let i=0;i<w*h;i++) alpha[i] = src[i*4+3];
+  const out = new Uint8ClampedArray(w*h);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const p = y*w+x;
+      const a = alpha[p];
+      // only smooth near edges (where neighbors differ) to keep interior crisp & fast
+      let isEdge = false;
+      for(let dy=-1;dy<=1 && !isEdge;dy++){
+        for(let dx=-1;dx<=1;dx++){
+          const nx=x+dx, ny=y+dy;
+          if(nx<0||ny<0||nx>=w||ny>=h) continue;
+          if(Math.abs(alpha[ny*w+nx]-a) > 40){ isEdge=true; break; }
+        }
+      }
+      if(!isEdge){ out[p]=a; continue; }
+      let sum=0,count=0;
+      for(let dy=-radius;dy<=radius;dy++){
+        for(let dx=-radius;dx<=radius;dx++){
+          const nx=x+dx, ny=y+dy;
+          if(nx<0||ny<0||nx>=w||ny>=h) continue;
+          sum += alpha[ny*w+nx]; count++;
+        }
+      }
+      out[p] = sum/count;
+    }
+  }
+  for(let i=0;i<w*h;i++) src[i*4+3] = out[i];
+  ctx.putImageData(imgData,0,0);
 }
 
 /* ---------- templates ---------- */
