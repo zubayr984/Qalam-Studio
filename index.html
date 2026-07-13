@@ -1,2081 +1,1479 @@
 <!DOCTYPE html>
-<html lang="uz-UZ">
+<html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creavify - Onlayn Rasm Muharriri | Meme Generator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Qalam Studio — Rasm Muharriri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Pacifico&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<style>
+:root{
+  --ink:#12141c;
+  --ink-2:#1a1d29;
+  --ink-3:#232735;
+  --line:#2e3242;
+  --paper:#f4f2ee;
+  --gold:#e8b84b;
+  --gold-dim:#a4842f;
+  --teal:#4fd1c5;
+  --danger:#e2685a;
+  --text:#e9e8f0;
+  --text-dim:#9497a8;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--ink);
+  color:var(--text);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;}
+input,select{font-family:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--ink-3);border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=Pacifico&family=Bangers&family=Lobster&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Fredoka+One&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+/* ===== LAYOUT ===== */
+#app{display:flex;flex-direction:column;height:100vh;}
 
-    <style>
-        :root {
-            --bg: #1a1d23;
-            --surface: #252830;
-            --surface2: #2d3039;
-            --border: #3a3d47;
-            --text: #e2e4e9;
-            --text2: #a1a5b0;
-            --accent: #6c5ce7;
-            --accent2: #a29bfe;
-            --danger: #e74c3c;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: 0.2s ease;
-            --canvas-max: 700px;
-            --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-        }
+/* TOPBAR */
+#topbar{
+  display:flex;align-items:center;gap:14px;
+  height:56px;min-height:56px;padding:0 16px;
+  background:var(--ink-2);border-bottom:1px solid var(--line);
+  z-index:50;
+}
+.brand{display:flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:.2px;}
+.brand .mark{
+  width:26px;height:26px;border-radius:7px;
+  background:linear-gradient(135deg,var(--gold),#c98f2b);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:15px;color:#1a1200;
+}
+#projName{
+  background:transparent;border:1px solid transparent;color:var(--text-dim);
+  font-size:13px;padding:6px 10px;border-radius:6px;width:180px;
+}
+#projName:hover,#projName:focus{border-color:var(--line);color:var(--text);outline:none;background:var(--ink-3);}
+.topbar-spacer{flex:1;}
+.tbtn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--ink-3);border:1px solid var(--line);color:var(--text);
+  padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;
+  transition:.15s;white-space:nowrap;
+}
+.tbtn:hover{border-color:var(--gold-dim);background:#282c3c;}
+.tbtn:disabled{opacity:.35;cursor:not-allowed;}
+.tbtn.icon-only{padding:8px 10px;}
+.tbtn.primary{background:linear-gradient(135deg,var(--gold),#c98f2b);border:none;color:#1a1200;font-weight:600;}
+.tbtn.primary:hover{filter:brightness(1.08);}
+.tbtn svg{width:16px;height:16px;flex-shrink:0;}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* MAIN */
+#main{flex:1;display:flex;min-height:0;}
 
-        body {
-            font-family: 'Poppins', 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-        }
+/* LEFT TOOL RAIL */
+#toolrail{
+  width:72px;min-width:72px;background:var(--ink-2);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px;overflow-y:auto;
+}
+.tool{
+  width:52px;height:52px;border-radius:12px;background:transparent;border:1px solid transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--text-dim);transition:.15s;position:relative;
+}
+.tool svg{width:20px;height:20px;}
+.tool span{font-size:9px;font-weight:500;letter-spacing:.2px;}
+.tool:hover{background:var(--ink-3);color:var(--text);}
+.tool.active{background:rgba(232,184,75,.12);border-color:var(--gold-dim);color:var(--gold);}
+.rail-sep{width:36px;height:1px;background:var(--line);margin:6px 0;}
 
-        /* === HEADER === */
-        .header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-        }
-        .header .logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), #a29bfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-        }
-        .header .logo span {
-            font-size: 0.7rem;
-            background: var(--surface2);
-            -webkit-text-fill-color: var(--text2);
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-left: 6px;
-            letter-spacing: 0;
-        }
-        .header-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
+/* CANVAS AREA */
+#canvas-area{
+  flex:1;display:flex;flex-direction:column;min-width:0;position:relative;
+  background:
+    linear-gradient(135deg,#181a24 25%,transparent 25%) -10px 0/20px 20px,
+    linear-gradient(225deg,#181a24 25%,transparent 25%) -10px 0/20px 20px,
+    linear-gradient(45deg,#181a24 25%,transparent 25%) 0 0/20px 20px,
+    linear-gradient(315deg,#181a24 25%,#14151d 25%) 0 0/20px 20px;
+}
+#preset-bar{
+  display:flex;gap:8px;padding:10px 16px;overflow-x:auto;background:rgba(18,20,28,.55);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(6px);
+}
+.chip{
+  flex-shrink:0;padding:6px 12px;border-radius:20px;background:var(--ink-3);border:1px solid var(--line);
+  color:var(--text-dim);font-size:12px;font-weight:500;white-space:nowrap;transition:.15s;
+}
+.chip:hover{color:var(--text);}
+.chip.active{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:600;}
 
-        /* === BUTTONS === */
-        .btn {
-            padding: 9px 16px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--surface2);
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all var(--transition);
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: inherit;
-            letter-spacing: 0.3px;
-        }
-        .btn:hover {
-            background: #3a3e4a;
-            border-color: #555;
-            transform: translateY(-1px);
-        }
-        .btn:active {
-            transform: scale(0.96);
-            transition: 0.05s;
-        }
-        .btn.accent {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.35);
-        }
-        .btn.accent:hover {
-            background: #7d6ff0;
-            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
-        }
-        .btn.danger {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: #fff;
-            font-weight: 600;
-        }
-        .btn.sm {
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            border-radius: 6px;
-        }
-        .btn.icon-only {
-            width: 38px;
-            height: 38px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 1.1rem;
-        }
-        .btn.active-tool {
-            background: var(--accent) !important;
-            border-color: var(--accent) !important;
-            color: #fff !important;
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
-        }
+#stage-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;}
+#stage{position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+#stage canvas{display:block;touch-action:none;}
 
-        /* === MAIN LAYOUT === */
-        .main-container {
-            display: flex;
-            gap: 16px;
-            padding: 16px;
-            max-width: 1400px;
-            margin: 0 auto;
-            min-height: calc(100vh - 140px);
-        }
+/* ===== MOBILE PANEL TOGGLE (hidden on desktop) ===== */
+#panelToggle{
+  display:none;position:fixed;right:16px;bottom:80px;z-index:90;
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),#c98f2b);border:none;color:#1a1200;
+  align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+#panelToggle svg{width:22px;height:22px;}
+#rpDragHandle{display:none;}
+#rpCloseBtn{display:none;}
 
-        /* === TOOL PANEL (Desktop sidebar) === */
-        .tool-panel {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 14px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-width: 200px;
-            max-width: 220px;
-            flex-shrink: 0;
-            box-shadow: var(--shadow);
-        }
-        .tool-panel h3 {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text2);
-            margin-bottom: 2px;
-            font-weight: 600;
-        }
-        .tool-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        .tool-group .btn {
-            flex: 1;
-            min-width: 44px;
-            justify-content: center;
-            font-size: 0.78rem;
-            padding: 8px 6px;
-            border-radius: 6px;
-        }
+/* ===== RESPONSIVE / MOBILE ===== */
+@media (max-width: 860px){
+  #topbar{padding:0 10px;gap:6px;overflow-x:auto;overflow-y:hidden;}
+  #topbar::-webkit-scrollbar{display:none;}
+  .brand{font-size:14px;flex-shrink:0;}
+  .brand .mark{width:22px;height:22px;font-size:13px;}
+  .topbar-spacer{flex:0 0 4px;}
+  #projName{width:90px;font-size:12px;padding:6px 8px;flex-shrink:0;}
+  .tbtn{padding:8px 9px;gap:0;flex-shrink:0;}
+  .tbtn .ic{font-size:16px;line-height:1;}
+  .tbtn .tlabel{display:none;}
+  .tbtn.icon-only{padding:8px;}
+  .tbtn.primary{padding:8px 12px;}
+  .tbtn.primary .tlabel{display:inline;font-size:13px;}
 
-        /* === CANVAS AREA === */
-        .canvas-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--surface);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: auto;
-            min-height: 500px;
-            box-shadow: var(--shadow);
-            padding: 20px;
-        }
-        .canvas-inner {
-            position: relative;
-            display: inline-block;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-            border-radius: 4px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        canvas#mainCanvas {
-            display: block;
-            max-width: 100%;
-            max-height: 65vh;
-            cursor: crosshair;
-            background: #fff;
-            border-radius: 2px;
-        }
-        canvas#mainCanvas.selecting {
-            cursor: default;
-        }
-        canvas#mainCanvas.dragging-element {
-            cursor: grabbing;
-        }
-        .canvas-drop-zone {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 5;
-        }
-        .canvas-drop-zone .drop-hint {
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 20px 30px;
-            border-radius: var(--radius);
-            font-size: 0.95rem;
-            text-align: center;
-            border: 2px dashed rgba(255, 255, 255, 0.4);
-            pointer-events: none;
-            display: none;
-        }
-        .canvas-wrapper.drag-over .drop-hint {
-            display: block;
-        }
-        .canvas-wrapper.drag-over canvas {
-            opacity: 0.5;
-        }
+  #main{flex-direction:column;}
 
-        /* === PROPERTIES PANEL === */
-        .props-panel {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 14px;
-            border: 1px solid var(--border);
-            min-width: 220px;
-            max-width: 260px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: var(--shadow);
-            overflow-y: auto;
-            max-height: 70vh;
-            position: sticky;
-            top: 80px;
-        }
-        .props-panel h3 {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text2);
-            font-weight: 600;
-        }
-        .props-panel label {
-            font-size: 0.75rem;
-            color: var(--text2);
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            display: block;
-            margin-bottom: 2px;
-        }
-        .props-panel input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-        .props-panel input[type="color"] {
-            width: 100%;
-            height: 36px;
-            border: 2px solid var(--border);
-            border-radius: 6px;
-            cursor: pointer;
-            background: var(--surface2);
-            padding: 2px;
-        }
-        .props-panel select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            background: var(--surface2);
-            color: var(--text);
-            border: 1px solid var(--border);
-            font-family: inherit;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .props-panel .color-presets {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        .props-panel .color-dot {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all var(--transition);
-            flex-shrink: 0;
-        }
-        .props-panel .color-dot:hover {
-            border-color: #fff;
-            transform: scale(1.2);
-        }
-        .props-panel .color-dot.active {
-            border-color: #fff;
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-        }
-        .no-selection {
-            color: var(--text2);
-            font-size: 0.8rem;
-            text-align: center;
-            padding: 20px 0;
-            opacity: 0.7;
-        }
+  #toolrail{
+    order:3;width:100%;min-width:0;height:70px;min-height:70px;
+    flex-direction:row;align-items:center;justify-content:flex-start;
+    border-right:none;border-top:1px solid var(--line);
+    padding:6px 10px;overflow-x:auto;overflow-y:hidden;gap:8px;
+  }
+  .tool{width:58px;height:56px;flex-shrink:0;}
+  .rail-sep{width:1px;height:34px;min-width:1px;margin:0 2px;}
 
-        /* === LAYER LIST === */
-        .layer-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .layer-item {
-            padding: 8px 10px;
-            background: var(--surface2);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.78rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 2px solid transparent;
-            transition: all var(--transition);
-            gap: 8px;
-        }
-        .layer-item:hover {
-            border-color: #555;
-        }
-        .layer-item.selected {
-            border-color: var(--accent) !important;
-            background: #36384a;
-        }
-        .layer-item .layer-icon {
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-        .layer-item .layer-name {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 500;
-        }
-        .layer-item .layer-del {
-            cursor: pointer;
-            color: var(--danger);
-            font-size: 0.9rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-        .layer-item .layer-del:hover {
-            background: rgba(231, 76, 60, 0.2);
-        }
+  #canvas-area{order:1;min-height:0;}
+  #preset-bar{padding:8px 10px;}
+  #stage-wrap{padding:12px;}
+  #canvas-info{bottom:8px;font-size:10px;padding:5px 10px;gap:8px;}
 
-        /* === MOBILE BOTTOM TOOLBAR === */
-        .mobile-toolbar {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 8px 10px;
-            z-index: 100;
-            gap: 5px;
-            overflow-x: auto;
-            flex-wrap: nowrap;
-            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
-        }
-        .mobile-toolbar .btn {
-            flex-shrink: 0;
-            font-size: 0.7rem;
-            padding: 7px 9px;
-        }
+  #rightpanel{
+    order:2;position:fixed;left:0;right:0;bottom:70px;
+    width:100%;min-width:0;height:48vh;max-height:64vh;
+    border-left:none;border-top:1px solid var(--line);
+    border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.5);
+    z-index:80;transform:translateY(115%);transition:transform .28s ease;
+  }
+  #rightpanel.show{transform:translateY(0);}
+  #rpDragHandle{display:block;width:40px;height:4px;border-radius:3px;background:var(--line);margin:10px auto 0;}
+  #rpCloseBtn{
+    display:flex;position:absolute;top:8px;right:10px;width:30px;height:30px;
+    border-radius:50%;background:var(--ink-3);border:1px solid var(--line);color:var(--text-dim);
+    align-items:center;justify-content:center;font-size:16px;z-index:2;
+  }
+  #panelToggle{display:flex;}
 
-        /* === TOAST === */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 500;
-            z-index: 999;
-            animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
-            font-size: 0.85rem;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            pointer-events: none;
-        }
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-        @keyframes toastOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-10px);
-            }
-        }
+  .modal{width:94vw;}
+  .modal-body{padding:16px;}
+}
 
-        /* === MODAL === */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.2s ease;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        .modal {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 20px;
-            border: 1px solid var(--border);
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .modal h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        .modal input[type="text"] {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 8px;
-            background: var(--surface2);
-            color: var(--text);
-            border: 1px solid var(--border);
-            font-family: inherit;
-            font-size: 0.9rem;
-        }
-        .modal .modal-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
+@media (max-width: 420px){
+  #projName{display:none;}
+  .tool{width:52px;}
+  .tool span{font-size:8.5px;}
+}
 
-        /* === RESPONSIVE === */
-        @media (max-width: 1024px) {
-            .main-container {
-                flex-direction: column;
-                padding: 8px;
-                gap: 8px;
-            }
-            .tool-panel {
-                display: none;
-            }
-            .props-panel {
-                max-width: 100%;
-                max-height: none;
-                position: static;
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 8px;
-                padding: 10px;
-                overflow-y: visible;
-            }
-            .props-panel>* {
-                flex: 1 1 auto;
-                min-width: 100px;
-            }
-            .props-panel h3 {
-                width: 100%;
-            }
-            .mobile-toolbar {
-                display: flex;
-            }
-            .canvas-wrapper {
-                min-height: 350px;
-                padding: 10px;
-                margin-bottom: 60px;
-            }
-            canvas#mainCanvas {
-                max-height: 45vh;
-            }
-            .header {
-                padding: 8px 12px;
-                gap: 6px;
-            }
-            .header .logo {
-                font-size: 1.1rem;
-            }
-            .btn {
-                font-size: 0.7rem;
-                padding: 7px 10px;
-            }
-        }
-        @media (max-width: 480px) {
-            .header-actions {
-                gap: 3px;
-            }
-            .btn {
-                font-size: 0.65rem;
-                padding: 6px 7px;
-                gap: 3px;
-            }
-            .btn.icon-only {
-                width: 30px;
-                height: 30px;
-                font-size: 0.85rem;
-            }
-            canvas#mainCanvas {
-                max-height: 35vh;
-            }
-            .canvas-wrapper {
-                min-height: 250px;
-                padding: 6px;
-            }
-            .props-panel {
-                padding: 6px;
-                gap: 4px;
-            }
-        }
-    </style>
+#canvas-info{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(20,22,30,.85);border:1px solid var(--line);border-radius:20px;
+  padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);
+  display:flex;gap:12px;backdrop-filter:blur(6px);
+}
+
+/* RIGHT PANEL */
+#rightpanel{
+  width:300px;min-width:300px;background:var(--ink-2);border-left:1px solid var(--line);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.rp-tabs{display:flex;border-bottom:1px solid var(--line);}
+.rp-tab{
+  flex:1;padding:12px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.3px;
+  color:var(--text-dim);border-bottom:2px solid transparent;
+}
+.rp-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.rp-body{flex:1;overflow-y:auto;padding:14px;}
+.rp-pane{display:none;}
+.rp-pane.active{display:block;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;}
+.field input[type=text],.field input[type=number],.field select{
+  width:100%;background:var(--ink-3);border:1px solid var(--line);color:var(--text);
+  padding:8px 10px;border-radius:7px;font-size:13px;
+}
+.field input[type=range]{width:100%;accent-color:var(--gold);}
+.field-row{display:flex;gap:8px;}
+.field-row .field{flex:1;}
+.row-inline{display:flex;align-items:center;gap:8px;}
+.swatch{width:30px;height:30px;border-radius:8px;border:2px solid var(--line);cursor:pointer;flex-shrink:0;padding:0;}
+.btn-grp{display:flex;gap:6px;}
+.btn-grp button{
+  flex:1;background:var(--ink-3);border:1px solid var(--line);color:var(--text-dim);
+  padding:8px;border-radius:7px;font-size:12px;font-weight:600;
+}
+.btn-grp button.on{background:var(--gold);color:#1a1200;border-color:var(--gold);}
+.mini-btn{
+  background:var(--ink-3);border:1px solid var(--line);color:var(--text);border-radius:7px;
+  padding:8px 10px;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.mini-btn:hover{border-color:var(--gold-dim);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.empty-hint{color:var(--text-dim);font-size:12.5px;line-height:1.6;text-align:center;padding:30px 10px;}
+.section-title{font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.6px;margin:0 0 10px;display:flex;align-items:center;gap:6px;}
+
+/* LAYERS LIST */
+.layer-row{
+  display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:var(--ink-3);
+  margin-bottom:6px;border:1px solid transparent;cursor:pointer;
+}
+.layer-row:hover{border-color:var(--line);}
+.layer-row.selected{border-color:var(--gold);background:rgba(232,184,75,.08);}
+.layer-row .lname{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.layer-row button{background:transparent;border:none;color:var(--text-dim);padding:3px;border-radius:4px;display:flex;}
+.layer-row button:hover{color:var(--text);background:var(--ink-2);}
+.layer-row button.off{color:#555;}
+.layer-row svg{width:14px;height:14px;}
+.layer-icon{width:26px;height:26px;border-radius:6px;background:var(--ink-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold);}
+.layer-icon svg{width:14px;height:14px;}
+
+.swatches-wrap{display:flex;flex-wrap:wrap;gap:8px;}
+.font-btn{width:100%;text-align:left;background:var(--ink-3);border:1px solid var(--line);color:var(--text);padding:9px 12px;border-radius:7px;font-size:14px;margin-bottom:6px;}
+.font-btn:hover{border-color:var(--gold-dim);}
+
+/* MODALS */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(10,11,16,.7);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:200;
+}
+.modal-overlay.show{display:flex;}
+.modal{
+  background:var(--ink-2);border:1px solid var(--line);border-radius:16px;width:420px;max-width:92vw;
+  max-height:86vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line);}
+.modal-head h3{margin:0;font-family:'Space Grotesk',sans-serif;font-size:17px;}
+.modal-close{background:transparent;border:none;color:var(--text-dim);font-size:20px;line-height:1;padding:4px;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:20px;}
+.modal-foot{padding:16px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
+
+.check-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
+.check-row:last-child{border-bottom:none;}
+.check-row input{accent-color:var(--gold);width:16px;height:16px;}
+.check-row .lbl{flex:1;font-size:13.5px;}
+.check-row .sub{font-size:11px;color:var(--text-dim);}
+
+.caption-card{background:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;}
+.caption-card p{margin:0 0 8px;font-size:13.5px;line-height:1.5;}
+.caption-card .tags{color:var(--teal);font-size:12px;margin-bottom:8px;}
+.caption-card button{font-size:11px;padding:5px 10px;}
+
+.proj-card{display:flex;gap:10px;align-items:center;background:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;}
+.proj-thumb{width:48px;height:48px;border-radius:6px;background:var(--ink);object-fit:cover;flex-shrink:0;border:1px solid var(--line);}
+.proj-info{flex:1;min-width:0;}
+.proj-info .n{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.proj-info .d{font-size:11px;color:var(--text-dim);}
+
+.toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:400;display:flex;flex-direction:column;gap:8px;align-items:center;}
+.toast{background:var(--ink-3);border:1px solid var(--gold-dim);color:var(--text);padding:10px 18px;border-radius:24px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:toastIn .25s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.badge{font-size:9px;background:var(--gold);color:#1a1200;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:6px;vertical-align:middle;}
+.badge.soon{background:var(--ink-3);color:var(--text-dim);border:1px solid var(--line);}
+
+.emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}
+.emoji-grid button{font-size:20px;background:var(--ink-3);border:1px solid transparent;border-radius:7px;padding:6px 0;}
+.emoji-grid button:hover{border-color:var(--gold-dim);background:var(--ink);}
+
+.hidden{display:none !important;}
+input[type=file]{display:none;}
+.tip{font-size:11.5px;color:var(--text-dim);line-height:1.5;margin-top:6px;}
+</style>
 </head>
 <body>
+<div id="app">
 
-    <!-- ============ HEADER ============ -->
-    <header class="header">
-        <div class="logo">🎨 Creavify <span>v2.0</span></div>
-        <div class="header-actions" id="headerActions">
-            <button class="btn sm" onclick="editor.uploadImage()" title="Rasm yuklash">📁 Yuklash</button>
-            <button class="btn sm" id="btnCrop" onclick="editor.toggleCropMode()" title="Kesish (Crop)">✂️ Crop</button>
-            <button class="btn sm" onclick="editor.undo()" title="Orqaga">↩️</button>
-            <button class="btn sm" onclick="editor.redo()" title="Oldinga">↪️</button>
-            <button class="btn sm" onclick="editor.resetAll()" title="Tozalash">🗑️</button>
-            <button class="btn accent sm" onclick="editor.downloadPNG()" title="PNG yuklab olish">⬇ PNG</button>
-            <button class="btn sm" onclick="editor.downloadJPG()" title="JPG yuklab olish">⬇ JPG</button>
-        </div>
-    </header>
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="brand"><div class="mark">Q</div>Qalam Studio</div>
+    <input id="projName" type="text" value="Nomsiz loyiha">
+    <div class="topbar-spacer"></div>
+    <button class="tbtn icon-only" id="btnUndo" title="Undo (Ctrl+Z)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+    </button>
+    <button class="tbtn icon-only" id="btnRedo" title="Redo (Ctrl+Y)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
+    </button>
+    <button class="tbtn" id="btnProjects"><span class="ic">📁</span><span class="tlabel"> Loyihalarim</span></button>
+    <button class="tbtn" id="btnSaveProject"><span class="ic">💾</span><span class="tlabel"> Saqlash</span></button>
+    <button class="tbtn primary" id="btnExport"><span class="ic">⬇</span><span class="tlabel"> Eksport</span></button>
+  </div>
 
-    <!-- ============ MAIN ============ -->
-    <div class="main-container">
-        <!-- Desktop Tool Panel -->
-        <aside class="tool-panel" id="toolPanel">
-            <h3>🛠 Asboblar</h3>
-            <div class="tool-group">
-                <button class="btn active-tool" data-tool="select" onclick="editor.setTool('select')">🖱️ Tanlash</button>
-                <button class="btn" data-tool="draw" onclick="editor.setTool('draw')">✏️ Chizish</button>
-            </div>
-            <div class="tool-group">
-                <button class="btn" onclick="editor.addText()">🔤 Matn</button>
-                <button class="btn" onclick="editor.addShape('rect')">⬜ Shakl</button>
-                <button class="btn" onclick="editor.addShape('circle')">⭕ Doira</button>
-            </div>
-            <div class="tool-group">
-                <button class="btn" onclick="editor.showEmojiPicker()">😀 Stiker</button>
-                <button class="btn" onclick="editor.flipHorizontal()">↔️ Flip</button>
-                <button class="btn" onclick="editor.rotate90()">🔄 90°</button>
-            </div>
-            <h3 style="margin-top:6px;">🎨 Filtrlar</h3>
-            <div class="tool-group">
-                <button class="btn sm" onclick="editor.setFilter('none')">Oddiy</button>
-                <button class="btn sm" onclick="editor.setFilter('grayscale(100%)')">⚫ B/W</button>
-                <button class="btn sm" onclick="editor.setFilter('sepia(80%)')">🟤 Sepia</button>
-                <button class="btn sm" onclick="editor.setFilter('brightness(130%)')">☀️ Yorqin</button>
-                <button class="btn sm" onclick="editor.setFilter('contrast(150%)')">🎯 Kontrast</button>
-                <button class="btn sm" onclick="editor.setFilter('blur(3px)')">🌫 Blur</button>
-                <button class="btn sm" onclick="editor.setFilter('invert(100%)')">🔲 Invert</button>
-                <button class="btn sm" onclick="editor.setFilter('hue-rotate(60deg)')">🌈 Hue</button>
-            </div>
-            <h3 style="margin-top:6px;">📐 Instagram</h3>
-            <div class="tool-group">
-                <button class="btn sm" onclick="editor.setCropPreset('1:1')">1:1 Post</button>
-                <button class="btn sm" onclick="editor.setCropPreset('4:5')">4:5 Port</button>
-                <button class="btn sm" onclick="editor.setCropPreset('9:16')">9:16 Story</button>
-                <button class="btn sm" onclick="editor.setCropPreset('16:9')">16:9 Land</button>
-            </div>
-            <button class="btn sm" style="margin-top:4px;" onclick="editor.toggleGrid()">📏 Grid</button>
-            <button class="btn sm" onclick="editor.toggleZoom()">🔍 Zoom: <span id="zoomLabel">100%</span></button>
-        </aside>
-
-        <!-- Canvas Area -->
-        <div class="canvas-wrapper" id="canvasWrapper"
-        ondragover="event.preventDefault(); this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="event.preventDefault(); this.classList.remove('drag-over'); editor.handleDrop(event)">
-        <div class="canvas-inner" id="canvasInner">
-            <canvas id="mainCanvas" width="800" height="800"></canvas>
-        </div>
-        <div class="canvas-drop-zone"><div class="drop-hint">📥 Rasmni shu yerga tashlang</div></div>
+  <div id="main">
+    <!-- LEFT TOOL RAIL -->
+    <div id="toolrail">
+      <button class="tool" data-tool="upload" title="Rasm yuklash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <span>Rasm</span>
+      </button>
+      <button class="tool" data-tool="text" title="Matn qo'shish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+        <span>Matn</span>
+      </button>
+      <button class="tool" data-tool="shape" title="Shakl qo'shish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><circle cx="17" cy="17" r="4"/></svg>
+        <span>Shakl</span>
+      </button>
+      <button class="tool" data-tool="sticker" title="Stiker/Emoji">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
+        <span>Stiker</span>
+      </button>
+      <div class="rail-sep"></div>
+      <button class="tool" data-tool="filters" title="Filtrlar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h12M3 18h6"/></svg>
+        <span>Filtr</span>
+      </button>
+      <button class="tool" data-tool="crop" title="Kesish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+        <span>Kesish</span>
+      </button>
+      <button class="tool" data-tool="bgremove" title="Fon olib tashlash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        <span>Fon</span>
+      </button>
+      <div class="rail-sep"></div>
+      <button class="tool" data-tool="templates" title="Shablonlar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Shablon</span>
+      </button>
+      <button class="tool" data-tool="brand" title="Brand Kit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <span>Brend</span>
+      </button>
+      <button class="tool" data-tool="caption" title="Sarlavha generator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20l9-16H3z"/></svg>
+        <span>AI Matn</span>
+      </button>
     </div>
 
-    <!-- Properties Panel -->
-    <aside class="props-panel" id="propsPanel">
-        <h3>⚙️ Xususiyatlar</h3>
-        <div id="propsContent" class="no-selection">Element tanlang yoki yangi qo'shing ✨</div>
-        <h3 style="margin-top:6px;">📋 Qatlamlar</h3>
-        <div class="layer-list" id="layerList">
-            <div class="layer-item" style="opacity:0.6;">📷 Asosiy rasm</div>
+    <!-- CANVAS AREA -->
+    <div id="canvas-area">
+      <div id="preset-bar"></div>
+      <div id="stage-wrap">
+        <div id="stage">
+          <canvas id="c"></canvas>
         </div>
-        <button class="btn sm danger" id="btnDeleteLayer" style="display:none;" onclick="editor.deleteSelectedLayer()">🗑️ Tanlangan qatlamni o'chirish</button>
-    </aside>
-</div>
-
-<!-- Mobile Bottom Toolbar -->
-<div class="mobile-toolbar" id="mobileToolbar">
-    <button class="btn active-tool" data-tool="select" onclick="editor.setTool('select')">🖱️</button>
-    <button class="btn" data-tool="draw" onclick="editor.setTool('draw')">✏️</button>
-    <button class="btn" onclick="editor.addText()">🔤 Matn</button>
-    <button class="btn" onclick="editor.addShape('rect')">⬜</button>
-    <button class="btn" onclick="editor.addShape('circle')">⭕</button>
-    <button class="btn" onclick="editor.showEmojiPicker()">😀</button>
-    <button class="btn" onclick="editor.setFilter('grayscale(100%)')">⚫</button>
-    <button class="btn" onclick="editor.setFilter('sepia(80%)')">🟤</button>
-    <button class="btn" onclick="editor.undo()">↩️</button>
-    <button class="btn" onclick="editor.redo()">↪️</button>
-    <button class="btn accent" onclick="editor.downloadPNG()">⬇</button>
-</div>
-
-<!-- Hidden File Input -->
-<input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="editor.handleFileUpload(event)">
-
-<!-- Toast Container -->
-<div id="toastContainer"></div>
-
-<!-- Emoji Picker Modal -->
-<div class="modal-overlay" id="emojiModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
-    <div class="modal">
-        <h3>😀 Stiker (Emoji) tanlang</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:1.8rem;justify-content:center;max-height:300px;overflow-y:auto;" id="emojiGrid"></div>
-        <div class="modal-actions">
-            <button class="btn sm" onclick="document.getElementById('emojiModal').style.display='none'">Yopish</button>
-        </div>
+      </div>
+      <div id="canvas-info">
+        <span id="infoSize">1080 × 1080</span>
+        <span id="infoZoom">100%</span>
+        <span id="infoObjs">0 obyekt</span>
+      </div>
     </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="rightpanel">
+      <div id="rpDragHandle"></div>
+      <button id="rpCloseBtn" title="Yopish">&times;</button>
+      <div class="rp-tabs">
+        <button class="rp-tab active" data-tab="layers">Qatlamlar</button>
+        <button class="rp-tab" data-tab="props">Xossalar</button>
+      </div>
+      <div class="rp-body">
+        <div class="rp-pane active" id="pane-layers">
+          <div class="section-title">Qatlamlar</div>
+          <div id="layerList"></div>
+          <div class="empty-hint" id="layerEmpty">Hali obyekt yo'q.<br>Chapdagi asboblardan foydalanib rasm, matn yoki shakl qo'shing.</div>
+        </div>
+        <div class="rp-pane" id="pane-props">
+          <div id="propsContent">
+            <div class="empty-hint">Xossalarni ko'rish uchun canvasdan biror obyektni tanlang.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Text Input Modal -->
-<div class="modal-overlay" id="textModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
-    <div class="modal">
-        <h3>🔤 Matn qo'shish</h3>
-        <input type="text" id="textInput" placeholder="Matnni kiriting..." maxlength="100">
-        <div class="modal-actions">
-            <button class="btn sm" onclick="document.getElementById('textModal').style.display='none'">Bekor qilish</button>
-            <button class="btn accent sm" onclick="editor.confirmAddText()">✅ Qo'shish</button>
-        </div>
-    </div>
+<!-- ===== PANELS AS MODALS ===== -->
+
+<div class="modal-overlay" id="modal-filters">
+  <div class="modal">
+    <div class="modal-head"><h3>🎛 Filtrlar</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body" id="filtersBody"></div>
+  </div>
 </div>
+
+<div class="modal-overlay" id="modal-shape">
+  <div class="modal">
+    <div class="modal-head"><h3>◻ Shakl qo'shish</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <button class="mini-btn" data-shape="rect">▭ Toʻrtburchak</button>
+        <button class="mini-btn" data-shape="circle">◯ Doira</button>
+        <button class="mini-btn" data-shape="triangle">△ Uchburchak</button>
+        <button class="mini-btn" data-shape="line">╱ Chiziq</button>
+        <button class="mini-btn" data-shape="arrow">➜ Oʻq (arrow)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-sticker">
+  <div class="modal">
+    <div class="modal-head"><h3>😊 Stiker qo'shish</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-crop">
+  <div class="modal">
+    <div class="modal-head"><h3>✂ Canvasni kesish</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <p class="tip">"Kesish sohasi" qo'shiladi — uni sudrab / o'lchamini o'zgartirib kerakli hudud tanlang, so'ng "Qo'llash" tugmasini bosing. Canvas shu hudud o'lchamiga qisqaradi.</p>
+      <div class="btn-grp" style="margin-top:12px;">
+        <button class="mini-btn" id="cropAddBtn">+ Kesish sohasini chizish</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="tbtn" data-close>Bekor qilish</button>
+      <button class="tbtn primary" id="cropApplyBtn">Qo'llash</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-bgremove">
+  <div class="modal">
+    <div class="modal-head"><h3>🪄 Fonni olib tashlash</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <p class="tip">Bir xil rangdagi (masalan oq) fonlar uchun ishlaydi: burchaklardan boshlab shu rangga o'xshash piksellarni shaffof qiladi. Murakkab fonlar uchun mos emas <span class="badge soon">AI versiya tez orada</span></p>
+      <div class="field" style="margin-top:14px;">
+        <label>Sezgirlik (tolerance): <span id="tolVal">32</span></label>
+        <input type="range" id="tolRange" min="5" max="100" value="32">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="tbtn" data-close>Bekor qilish</button>
+      <button class="tbtn primary" id="bgApplyBtn">Fonni olib tashlash</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-templates">
+  <div class="modal">
+    <div class="modal-head"><h3>🗂 Shablonlar</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body" id="templatesBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-brand">
+  <div class="modal">
+    <div class="modal-head"><h3>🏷 Brand Kit</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <div class="section-title">Brend ranglari</div>
+      <div class="swatches-wrap" id="brandColors"></div>
+      <div class="row-inline" style="margin-top:10px;">
+        <input type="color" id="newBrandColor" value="#e8b84b" style="width:44px;height:34px;border:none;border-radius:6px;background:none;">
+        <button class="mini-btn" id="addBrandColor">+ Rang qo'shish</button>
+      </div>
+      <div class="section-title" style="margin-top:20px;">Sevimli shriftlar</div>
+      <div id="brandFonts"></div>
+      <p class="tip">Ranglar va shriftlar shu brauzerda saqlanadi va loyihalar orasida qayta ishlatiladi.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-caption">
+  <div class="modal">
+    <div class="modal-head"><h3>✨ Sarlavha / Caption generator</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <p class="tip" style="margin-bottom:14px;">Bu offline shablon-asosli generator (haqiqiy AI API ulanmagan). Kalit so'z kiriting — post uchun sarlavha va hashtag variantlari tayyorlanadi.</p>
+      <div class="field">
+        <label>Kalit so'z / mavzu</label>
+        <input type="text" id="captionKeyword" placeholder="masalan: sayohat, biznes, motivatsiya...">
+      </div>
+      <div class="field">
+        <label>Kayfiyat</label>
+        <select id="captionMood">
+          <option value="quvnoq">Quvnoq</option>
+          <option value="ilhomlantiruvchi">Ilhomlantiruvchi</option>
+          <option value="rasmiy">Rasmiy / biznes</option>
+          <option value="hazil">Hazil / meme</option>
+        </select>
+      </div>
+      <button class="tbtn primary" id="genCaptionBtn" style="width:100%;justify-content:center;margin-bottom:14px;">Generatsiya qilish</button>
+      <div id="captionResults"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-projects">
+  <div class="modal">
+    <div class="modal-head"><h3>📁 Loyihalarim (lokal saqlash)</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body" id="projectsBody">
+      <div class="empty-hint">Hali saqlangan loyiha yo'q.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-export">
+  <div class="modal">
+    <div class="modal-head"><h3>⬇ Eksport qilish</h3><button class="modal-close" data-close>&times;</button></div>
+    <div class="modal-body">
+      <div class="section-title">Format</div>
+      <div class="btn-grp" style="margin-bottom:16px;">
+        <button class="mini-btn on" data-fmt="png">PNG (shaffof fon)</button>
+        <button class="mini-btn" data-fmt="jpeg">JPG</button>
+      </div>
+      <div class="section-title">O'lcham (batch eksport)</div>
+      <div class="check-row"><input type="checkbox" id="mx1" checked><div class="lbl">1x — asl o'lcham<div class="sub" id="mx1sub"></div></div></div>
+      <div class="check-row"><input type="checkbox" id="mx2"><div class="lbl">2x — Retina/HD<div class="sub" id="mx2sub"></div></div></div>
+      <div class="check-row"><input type="checkbox" id="mx3"><div class="lbl">3x — Print sifat<div class="sub" id="mx3sub"></div></div></div>
+      <div class="section-title" style="margin-top:16px;">Qo'shimcha</div>
+      <div class="check-row"><input type="checkbox" id="wmToggle"><div class="lbl">Watermark qo'shish <span class="badge">Free</span><div class="sub">"Qalam Studio" belgisi pastki o'ng burchakda</div></div></div>
+      <div class="check-row"><input type="checkbox" id="shareToggle"><div class="lbl">Yuklashdan so'ng ulashish oynasi<div class="sub">Qurilma qo'llasa (Web Share API)</div></div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="tbtn" data-close>Bekor qilish</button>
+      <button class="tbtn primary" id="doExportBtn">Yuklab olish</button>
+    </div>
+  </div>
+</div>
+
+<button id="panelToggle" title="Qatlamlar / Xossalar">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+</button>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<input type="file" id="fileInput" accept="image/*">
 
 <script>
-    // ============================================================
-    //  CREAVIFY - TO'LIQ ONLAYN RASM MUHARRIRI
-    //  25+ xususiyat, Canvas API, qatlamlar tizimi, mobil qo'llab-quvvatlash
-    // ============================================================
-
-    class ImageEditor {
-        constructor() {
-            this.canvas = document.getElementById('mainCanvas');
-            this.ctx = this.canvas.getContext('2d');
-            this.canvasWrapper = document.getElementById('canvasWrapper');
-            this.canvasInner = document.getElementById('canvasInner');
-
-            // Ichki o'lchamlar (eksport sifati uchun)
-            this.width = 800;
-            this.height = 800;
-            this.canvas.width = this.width;
-            this.canvas.height = this.height;
-
-            // Asosiy rasm
-            this.baseImage = null;
-            this.baseImageOriginal = null; // Filtrlar uchun asl nusxa
-            this.imageX = 0;
-            this.imageY = 0;
-            this.imageW = this.width;
-            this.imageH = this.height;
-
-            // Qatlamlar
-            this.layers = [];
-            this.selectedLayerIndex = -1;
-
-            // Holat
-            this.currentTool = 'select';
-            this.currentFilter = 'none';
-            this.gridEnabled = false;
-            this.zoomLevel = 1;
-            this.cropMode = false;
-            this.cropPreset = null; // {ratioW, ratioH} yoki null
-            this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
-
-            // Chizish
-            this.isDrawing = false;
-            this.currentDrawingPoints = [];
-            this.brushColor = '#ff4444';
-            this.brushSize = 4;
-
-            // Element sudrash
-            this.isDragging = false;
-            this.dragStartX = 0;
-            this.dragStartY = 0;
-            this.dragLayerStartX = 0;
-            this.dragLayerStartY = 0;
-            this.hasMoved = false;
-
-            // Undo/Redo
-            this.undoStack = [];
-            this.redoStack = [];
-            this.maxUndo = 50;
-
-            // Emoji ro'yxati
-            this.emojiList = [
-                '😀', '😂', '🤣', '😍', '🥰', '😎', '🤩', '😡', '🤯', '🥳', '😱', '💀', '👻', '🎃', '👍', '👎', '❤️', '🔥',
-                '⭐', '✨', '💯', '🎉', '🎊', '📌', '📍', '🔔', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '💬', '💭',
-                '🐱', '🐶', '🦊', '🐼', '🦄', '🌈', '🍕', '🍔', '🌮', '☕', '🎸', '🎯', '🚀', '💡', '🎵', '🌻', '🍀', '👑',
-                '💎', '🎀', '🧸', '🌸', '🦋', '🐝', '🍩', '🧁', '🎪', '🪄'
-            ];
-
-            this.init();
-        }
-
-        init() {
-            this.setupEmojiGrid();
-            this.bindCanvasEvents();
-            this.render();
-            this.updateLayerList();
-            this.updateToolButtons();
-            this.saveState();
-            this.showToast('🎨 Creavify tayyor! Rasm yuklang yoki yaratishni boshlang.');
-        }
-
-        // ==================== EMODJI GRID ====================
-        setupEmojiGrid() {
-            const grid = document.getElementById('emojiGrid');
-            grid.innerHTML = '';
-            this.emojiList.forEach(emoji => {
-                const span = document.createElement('span');
-                span.textContent = emoji;
-                span.style.cssText =
-                    'cursor:pointer;padding:6px;border-radius:8px;transition:all 0.15s;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;';
-                span.onmouseenter = () => span.style.background = 'rgba(255,255,255,0.1)';
-                span.onmouseleave = () => span.style.background = 'transparent';
-                span.onclick = () => {
-                    this.addSticker(emoji);
-                    document.getElementById('emojiModal').style.display = 'none';
-                };
-                grid.appendChild(span);
-            });
-        }
-
-        // ==================== RASM YUKLASH ====================
-        uploadImage() {
-            document.getElementById('fileInput').click();
-        }
-
-        handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            this.loadImageFromFile(file);
-            event.target.value = '';
-        }
-
-        handleDrop(event) {
-            const file = event.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                this.loadImageFromFile(file);
-            }
-        }
-
-        loadImageFromFile(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    this.baseImageOriginal = img;
-                    this.baseImage = img;
-                    // Canvas o'lchamini rasmga moslash
-                    const maxDim = 1200;
-                    let w = img.width;
-                    let h = img.height;
-                    if (Math.max(w, h) > maxDim) {
-                        const scale = maxDim / Math.max(w, h);
-                        w = Math.round(w * scale);
-                        h = Math.round(h * scale);
-                    }
-                    this.width = w;
-                    this.height = h;
-                    this.canvas.width = this.width;
-                    this.canvas.height = this.height;
-                    this.imageW = w;
-                    this.imageH = h;
-                    this.imageX = 0;
-                    this.imageY = 0;
-                    this.cropRect = { x: 0, y: 0, w: w, h: h };
-                    this.cropPreset = null;
-                    this.cropMode = false;
-                    this.layers = [];
-                    this.selectedLayerIndex = -1;
-                    this.currentFilter = 'none';
-                    this.undoStack = [];
-                    this.redoStack = [];
-                    this.saveState();
-                    this.render();
-                    this.updateLayerList();
-                    this.updatePropsPanel();
-                    this.showToast('✅ Rasm yuklandi! (' + img.width + '×' + img.height + 'px)');
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // ==================== TOOL MANAGEMENT ====================
-        setTool(tool) {
-            this.currentTool = tool;
-            this.cropMode = false;
-            this.selectedLayerIndex = -1;
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.render();
-            this.updatePropsPanel();
-            this.showToast('🛠 Asbob: ' + (tool === 'select' ? 'Tanlash' : tool === 'draw' ? 'Chizish' :
-                'Kesish'));
-        }
-
-        updateToolButtons() {
-            document.querySelectorAll('[data-tool]').forEach(btn => {
-                btn.classList.toggle('active-tool', btn.dataset.tool === this.currentTool);
-            });
-            document.getElementById('btnCrop')?.classList.toggle('active-tool', this.cropMode);
-        }
-
-        updateCanvasCursor() {
-            if (this.cropMode) {
-                this.canvas.style.cursor = 'crosshair';
-                this.canvas.classList.remove('selecting', 'dragging-element');
-            } else if (this.currentTool === 'draw') {
-                this.canvas.style.cursor = 'crosshair';
-                this.canvas.classList.remove('selecting', 'dragging-element');
-            } else {
-                this.canvas.style.cursor = 'default';
-                this.canvas.classList.add('selecting');
-                this.canvas.classList.remove('dragging-element');
-            }
-        }
-
-        // ==================== CANVAS EVENTS ====================
-        bindCanvasEvents() {
-            // Mouse events
-            this.canvas.addEventListener('mousedown', (e) => this.onPointerDown(e));
-            this.canvas.addEventListener('mousemove', (e) => this.onPointerMove(e));
-            this.canvas.addEventListener('mouseup', (e) => this.onPointerUp(e));
-            this.canvas.addEventListener('mouseleave', (e) => this.onPointerUp(e));
-            this.canvas.addEventListener('dblclick', (e) => this.onDoubleClick(e));
-
-            // Touch events
-            this.canvas.addEventListener('touchstart', (e) => { e.preventDefault();
-                this.onPointerDown(this.touchToMouse(e)); }, { passive: false });
-            this.canvas.addEventListener('touchmove', (e) => { e.preventDefault();
-                this.onPointerMove(this.touchToMouse(e)); }, { passive: false });
-            this.canvas.addEventListener('touchend', (e) => { this.onPointerUp(this.touchToMouse(e)); });
-            this.canvas.addEventListener('touchcancel', (e) => { this.onPointerUp(this.touchToMouse(e)); });
-        }
-
-        touchToMouse(e) {
-            if (e.touches.length === 0) return { clientX: this._lastX || 0, clientY: this._lastY || 0, button: 0 };
-            const t = e.touches[0];
-            this._lastX = t.clientX;
-            this._lastY = t.clientY;
-            return { clientX: t.clientX, clientY: t.clientY, button: 0 };
-        }
-
-        getCanvasPos(e) {
-            const rect = this.canvas.getBoundingClientRect();
-            const scaleX = this.width / rect.width;
-            const scaleY = this.height / rect.height;
-            return {
-                x: (e.clientX - rect.left) * scaleX,
-                y: (e.clientY - rect.top) * scaleY,
-                scaleX,
-                scaleY
-            };
-        }
-
-        onPointerDown(e) {
-            if (e.button !== undefined && e.button !== 0) return; // Faqat chap tugma
-            const pos = this.getCanvasPos(e);
-
-            if (this.cropMode) {
-                this.cropDragStart = { x: pos.x, y: pos.y };
-                this.cropDragInitial = { ...this.cropRect };
-                this._cropDragging = true;
-                return;
-            }
-
-            if (this.currentTool === 'draw') {
-                this.isDrawing = true;
-                this.currentDrawingPoints = [{ x: pos.x, y: pos.y }];
-                this.hasMoved = false;
-                return;
-            }
-
-            // Select mode - elementni topish
-            const hitIndex = this.hitTest(pos.x, pos.y);
-            if (hitIndex >= 0) {
-                this.selectedLayerIndex = hitIndex;
-                this.isDragging = true;
-                this.hasMoved = false;
-                this.dragStartX = pos.x;
-                this.dragStartY = pos.y;
-                const layer = this.layers[hitIndex];
-                this.dragLayerStartX = layer.x;
-                this.dragLayerStartY = layer.y;
-                this.canvas.classList.add('dragging-element');
-                this.updatePropsPanel();
-                this.updateLayerList();
-                this.render();
-            } else {
-                this.selectedLayerIndex = -1;
-                this.updatePropsPanel();
-                this.updateLayerList();
-                this.render();
-            }
-        }
-
-        onPointerMove(e) {
-            const pos = this.getCanvasPos(e);
-
-            if (this._cropDragging && this.cropMode) {
-                const dx = pos.x - this.cropDragStart.x;
-                const dy = pos.y - this.cropDragStart.y;
-                this.cropRect.x = Math.max(0, Math.min(this.width - this.cropRect.w, this.cropDragInitial.x + dx));
-                this.cropRect.y = Math.max(0, Math.min(this.height - this.cropRect.h, this.cropDragInitial.y + dy));
-                this.render();
-                return;
-            }
-
-            if (this.isDrawing && this.currentTool === 'draw') {
-                this.currentDrawingPoints.push({ x: pos.x, y: pos.y });
-                this.hasMoved = true;
-                // Jonli chizish
-                this.render();
-                this.ctx.save();
-                this.ctx.strokeStyle = this.brushColor;
-                this.ctx.lineWidth = this.brushSize;
-                this.ctx.lineCap = 'round';
-                this.ctx.lineJoin = 'round';
-                this.ctx.setLineDash([]);
-                this.ctx.globalAlpha = 1;
-                this.ctx.beginPath();
-                const pts = this.currentDrawingPoints;
-                this.ctx.moveTo(pts[0].x, pts[0].y);
-                for (let i = 1; i < pts.length; i++) {
-                    this.ctx.lineTo(pts[i].x, pts[i].y);
-                }
-                this.ctx.stroke();
-                this.ctx.restore();
-                return;
-            }
-
-            if (this.isDragging && this.selectedLayerIndex >= 0) {
-                const dx = pos.x - this.dragStartX;
-                const dy = pos.y - this.dragStartY;
-                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) this.hasMoved = true;
-                const layer = this.layers[this.selectedLayerIndex];
-                layer.x = this.dragLayerStartX + dx;
-                layer.y = this.dragLayerStartY + dy;
-                this.render();
-            }
-        }
-
-        onPointerUp(e) {
-            if (this._cropDragging && this.cropMode) {
-                this._cropDragging = false;
-                this.saveState();
-                return;
-            }
-
-            if (this.isDrawing && this.currentTool === 'draw') {
-                this.isDrawing = false;
-                if (this.currentDrawingPoints.length > 1) {
-                    this.layers.push({
-                        type: 'drawing',
-                        points: [...this.currentDrawingPoints],
-                        brushColor: this.brushColor,
-                        brushSize: this.brushSize,
-                        x: 0,
-                        y: 0,
-                        width: this.width,
-                        height: this.height,
-                        opacity: 1,
-                        rotation: 0,
-                    });
-                    this.selectedLayerIndex = this.layers.length - 1;
-                    this.saveState();
-                    this.updateLayerList();
-                    this.updatePropsPanel();
-                }
-                this.currentDrawingPoints = [];
-                this.render();
-                return;
-            }
-
-            if (this.isDragging) {
-                this.isDragging = false;
-                this.canvas.classList.remove('dragging-element');
-                if (this.hasMoved && this.selectedLayerIndex >= 0) {
-                    this.saveState();
-                }
-            }
-        }
-
-        onDoubleClick(e) {
-            const pos = this.getCanvasPos(e);
-            const hitIndex = this.hitTest(pos.x, pos.y);
-            if (hitIndex >= 0 && this.layers[hitIndex].type === 'text') {
-                this.selectedLayerIndex = hitIndex;
-                const layer = this.layers[hitIndex];
-                document.getElementById('textInput').value = layer.text;
-                document.getElementById('textModal').style.display = 'flex';
-                this._editingLayerIndex = hitIndex;
-                this.updatePropsPanel();
-                this.updateLayerList();
-                this.render();
-            }
-        }
-
-        // ==================== HIT TEST ====================
-        hitTest(mx, my) {
-            // Orqadan oldinga qarab tekshirish (yuqori qatlam birinchi)
-            for (let i = this.layers.length - 1; i >= 0; i--) {
-                const layer = this.layers[i];
-                let left, top, right, bottom;
-
-                if (layer.type === 'text') {
-                    this.ctx.save();
-                    this.ctx.font = `${layer.fontSize || 40}px "${layer.font || 'Arial'}"`;
-                    const metrics = this.ctx.measureText(layer.text || '');
-                    this.ctx.restore();
-                    const textH = (layer.fontSize || 40);
-                    const textW = metrics.width;
-                    left = layer.x - textW / 2;
-                    top = layer.y - textH / 2;
-                    right = layer.x + textW / 2;
-                    bottom = layer.y + textH / 2;
-                } else if (layer.type === 'sticker') {
-                    const size = layer.stickerSize || 50;
-                    left = layer.x - size / 2;
-                    top = layer.y - size / 2;
-                    right = layer.x + size / 2;
-                    bottom = layer.y + size / 2;
-                } else if (layer.type === 'shape') {
-                    left = layer.x;
-                    top = layer.y;
-                    right = layer.x + (layer.shapeWidth || 100);
-                    bottom = layer.y + (layer.shapeHeight || 100);
-                } else if (layer.type === 'drawing') {
-                    // Chizilgan elementlar uchun soddalashtirilgan hit test
-                    const tolerance = (layer.brushSize || 4) + 8;
-                    for (const pt of (layer.points || [])) {
-                        if (Math.abs(pt.x - mx) < tolerance && Math.abs(pt.y - my) < tolerance) {
-                            return i;
-                        }
-                    }
-                    continue;
-                } else {
-                    continue;
-                }
-
-                if (mx >= left && mx <= right && my >= top && my <= bottom) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        // ==================== RENDER ====================
-        render() {
-            const ctx = this.ctx;
-            ctx.clearRect(0, 0, this.width, this.height);
-
-            // Orqa fon (shaxmat naqsh + oq)
-            this.drawCheckerboard(ctx, this.width, this.height);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, this.width, this.height);
-
-            // Asosiy rasmni chizish (filtr bilan)
-            if (this.baseImage) {
-                ctx.save();
-                if (this.currentFilter && this.currentFilter !== 'none') {
-                    ctx.filter = this.currentFilter;
-                }
-                ctx.drawImage(this.baseImage, this.imageX, this.imageY, this.imageW, this.imageH);
-                ctx.restore();
-            }
-
-            // Barcha qatlamlarni chizish
-            for (let i = 0; i < this.layers.length; i++) {
-                const layer = this.layers[i];
-                ctx.save();
-                ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
-
-                if (layer.type === 'text') {
-                    this.renderTextLayer(ctx, layer, i);
-                } else if (layer.type === 'sticker') {
-                    this.renderStickerLayer(ctx, layer, i);
-                } else if (layer.type === 'shape') {
-                    this.renderShapeLayer(ctx, layer, i);
-                } else if (layer.type === 'drawing') {
-                    this.renderDrawingLayer(ctx, layer, i);
-                }
-
-                ctx.restore();
-
-                // Tanlangan qatlam uchun chegara
-                if (i === this.selectedLayerIndex && this.currentTool === 'select' && !this.cropMode) {
-                    ctx.save();
-                    ctx.setLineDash([6, 3]);
-                    ctx.strokeStyle = '#6c5ce7';
-                    ctx.lineWidth = 2;
-                    ctx.globalAlpha = 1;
-                    let bx, by, bw, bh;
-                    if (layer.type === 'text') {
-                        ctx.font = `${layer.fontSize || 40}px "${layer.font || 'Arial'}"`;
-                        const m = ctx.measureText(layer.text || '');
-                        bw = m.width + 10;
-                        bh = (layer.fontSize || 40) + 10;
-                        bx = layer.x - bw / 2;
-                        by = layer.y - bh / 2;
-                    } else if (layer.type === 'sticker') {
-                        const s = layer.stickerSize || 50;
-                        bw = s + 8;
-                        bh = s + 8;
-                        bx = layer.x - bw / 2;
-                        by = layer.y - bh / 2;
-                    } else if (layer.type === 'shape') {
-                        bx = layer.x - 4;
-                        by = layer.y - 4;
-                        bw = (layer.shapeWidth || 100) + 8;
-                        bh = (layer.shapeHeight || 100) + 8;
-                    } else {
-                        bx = 0;
-                        by = 0;
-                        bw = this.width;
-                        bh = this.height;
-                    }
-                    ctx.strokeRect(bx, by, bw, bh);
-                    ctx.setLineDash([]);
-                    ctx.restore();
-                }
-            }
-
-            // Grid
-            if (this.gridEnabled) {
-                ctx.save();
-                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-                ctx.lineWidth = 0.5;
-                ctx.globalAlpha = 1;
-                const gs = 50;
-                for (let x = gs; x < this.width; x += gs) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, this.height);
-                    ctx.stroke();
-                }
-                for (let y = gs; y < this.height; y += gs) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(this.width, y);
-                    ctx.stroke();
-                }
-                ctx.restore();
-            }
-
-            // Crop overlay
-            if (this.cropMode) {
-                ctx.save();
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = 'rgba(0,0,0,0.55)';
-                ctx.fillRect(0, 0, this.width, this.height);
-                ctx.clearRect(this.cropRect.x, this.cropRect.y, this.cropRect.w, this.cropRect.h);
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([8, 4]);
-                ctx.strokeRect(this.cropRect.x, this.cropRect.y, this.cropRect.w, this.cropRect.h);
-                ctx.setLineDash([]);
-                // O'lcham ko'rsatish
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 13px Poppins, sans-serif';
-                ctx.fillText(`${Math.round(this.cropRect.w)}×${Math.round(this.cropRect.h)}`,
-                    this.cropRect.x + 6, this.cropRect.y + 20);
-                ctx.restore();
-            }
-        }
-
-        drawCheckerboard(ctx, w, h) {
-            const sq = 16;
-            ctx.save();
-            ctx.globalAlpha = 0.3;
-            for (let y = 0; y < h; y += sq) {
-                for (let x = 0; x < w; x += sq) {
-                    ctx.fillStyle = ((x / sq + y / sq) % 2 === 0) ? '#e0e0e0' : '#f5f5f5';
-                    ctx.fillRect(x, y, sq, sq);
-                }
-            }
-            ctx.restore();
-        }
-
-        renderTextLayer(ctx, layer, index) {
-            const font = `${layer.fontSize || 40}px "${layer.font || 'Arial'}"`;
-            ctx.font = font;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            // Soya
-            if (layer.shadowEnabled) {
-                ctx.shadowColor = layer.shadowColor || 'rgba(0,0,0,0.6)';
-                ctx.shadowBlur = layer.shadowBlur || 4;
-                ctx.shadowOffsetX = layer.shadowOffsetX || 2;
-                ctx.shadowOffsetY = layer.shadowOffsetY || 2;
-            }
-
-            // Stroke (kontur)
-            if (layer.strokeEnabled && layer.strokeWidth > 0) {
-                ctx.strokeStyle = layer.strokeColor || '#000';
-                ctx.lineWidth = layer.strokeWidth || 2;
-                ctx.lineJoin = 'round';
-                ctx.strokeText(layer.text, layer.x, layer.y);
-            }
-
-            // Asosiy matn
-            ctx.fillStyle = layer.color || '#ffffff';
-            ctx.fillText(layer.text, layer.x, layer.y);
-
-            // Reset shadow
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-        }
-
-        renderStickerLayer(ctx, layer, index) {
-            const size = layer.stickerSize || 50;
-            ctx.font = `${size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(layer.emoji || '😀', layer.x, layer.y);
-        }
-
-        renderShapeLayer(ctx, layer, index) {
-            const w = layer.shapeWidth || 100;
-            const h = layer.shapeHeight || 100;
-            ctx.fillStyle = layer.fillColor || 'rgba(108,92,231,0.5)';
-            ctx.strokeStyle = layer.shapeStrokeColor || '#6c5ce7';
-            ctx.lineWidth = layer.shapeStrokeWidth || 2;
-
-            if (layer.shapeType === 'circle') {
-                const cx = layer.x + w / 2;
-                const cy = layer.y + h / 2;
-                const r = Math.min(w, h) / 2;
-                ctx.beginPath();
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-            } else {
-                ctx.fillRect(layer.x, layer.y, w, h);
-                ctx.strokeRect(layer.x, layer.y, w, h);
-            }
-        }
-
-        renderDrawingLayer(ctx, layer, index) {
-            const pts = layer.points || [];
-            if (pts.length < 2) return;
-            ctx.strokeStyle = layer.brushColor || '#ff4444';
-            ctx.lineWidth = layer.brushSize || 4;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
-            for (let i = 1; i < pts.length; i++) {
-                ctx.lineTo(pts[i].x, pts[i].y);
-            }
-            ctx.stroke();
-        }
-
-        // ==================== MATN QO'SHISH ====================
-        addText() {
-            document.getElementById('textInput').value = '';
-            document.getElementById('textModal').style.display = 'flex';
-            this._editingLayerIndex = -1;
-            setTimeout(() => document.getElementById('textInput').focus(), 150);
-        }
-
-        confirmAddText() {
-            const text = document.getElementById('textInput').value.trim();
-            if (!text) {
-                this.showToast('⚠️ Iltimos, matn kiriting');
-                return;
-            }
-            document.getElementById('textModal').style.display = 'none';
-
-            if (this._editingLayerIndex >= 0 && this.layers[this._editingLayerIndex]?.type === 'text') {
-                // Mavjud matnni tahrirlash
-                this.layers[this._editingLayerIndex].text = text;
-                this.selectedLayerIndex = this._editingLayerIndex;
-                this.saveState();
-            } else {
-                // Yangi matn qatlami
-                const layer = {
-                    type: 'text',
-                    text: text,
-                    x: this.width / 2,
-                    y: this.height / 2,
-                    font: 'Poppins',
-                    fontSize: 44,
-                    color: '#ffffff',
-                    strokeEnabled: true,
-                    strokeColor: '#000000',
-                    strokeWidth: 3,
-                    shadowEnabled: true,
-                    shadowColor: 'rgba(0,0,0,0.5)',
-                    shadowBlur: 6,
-                    shadowOffsetX: 2,
-                    shadowOffsetY: 2,
-                    opacity: 1,
-                    rotation: 0,
-                };
-                this.layers.push(layer);
-                this.selectedLayerIndex = this.layers.length - 1;
-                this.saveState();
-            }
-            this._editingLayerIndex = -1;
-            this.currentTool = 'select';
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            this.showToast('✅ Matn qo\'shildi');
-        }
-
-        // ==================== STIKER QO'SHISH ====================
-        showEmojiPicker() {
-            document.getElementById('emojiModal').style.display = 'flex';
-        }
-
-        addSticker(emoji) {
-            const layer = {
-                type: 'sticker',
-                emoji: emoji,
-                x: this.width / 2,
-                y: this.height / 2,
-                stickerSize: 60,
-                opacity: 1,
-                rotation: 0,
-            };
-            this.layers.push(layer);
-            this.selectedLayerIndex = this.layers.length - 1;
-            this.currentTool = 'select';
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.saveState();
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            this.showToast('😀 Stiker qo\'shildi');
-        }
-
-        // ==================== SHAKL QO'SHISH ====================
-        addShape(type) {
-            const layer = {
-                type: 'shape',
-                shapeType: type,
-                x: this.width / 2 - 50,
-                y: this.height / 2 - 50,
-                shapeWidth: 100,
-                shapeHeight: 100,
-                fillColor: 'rgba(108,92,231,0.4)',
-                shapeStrokeColor: '#6c5ce7',
-                shapeStrokeWidth: 3,
-                opacity: 0.85,
-                rotation: 0,
-            };
-            this.layers.push(layer);
-            this.selectedLayerIndex = this.layers.length - 1;
-            this.currentTool = 'select';
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.saveState();
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            this.showToast('🔷 Shakl qo\'shildi');
-        }
-
-        // ==================== FILTRLAR ====================
-        setFilter(filter) {
-            this.currentFilter = filter;
-            this.saveState();
-            this.render();
-            this.showToast('🎨 Filtr qo\'llandi: ' + filter);
-        }
-
-        // ==================== CROP ====================
-        toggleCropMode() {
-            this.cropMode = !this.cropMode;
-            if (this.cropMode) {
-                this.currentTool = 'select';
-                this.selectedLayerIndex = -1;
-                this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
-                if (this.cropPreset) {
-                    this.applyPresetToCropRect();
-                }
-            }
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.updatePropsPanel();
-            this.render();
-            if (this.cropMode) {
-                this.showToast('✂️ Crop rejimi - kesish maydonini sudrab sozlang');
-            }
-        }
-
-        setCropPreset(presetStr) {
-            const [rw, rh] = presetStr.split(':').map(Number);
-            this.cropPreset = { ratioW: rw, ratioH: rh };
-            this.cropMode = true;
-            this.currentTool = 'select';
-            this.selectedLayerIndex = -1;
-            this.applyPresetToCropRect();
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.updatePropsPanel();
-            this.render();
-            this.showToast('📐 Instagram ' + presetStr + ' crop tanlandi');
-        }
-
-        applyPresetToCropRect() {
-            if (!this.cropPreset) {
-                this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
-                return;
-            }
-            const { ratioW, ratioH } = this.cropPreset;
-            let cw, ch;
-            if (this.width / this.height > ratioW / ratioH) {
-                ch = this.height;
-                cw = Math.round(ch * ratioW / ratioH);
-            } else {
-                cw = this.width;
-                ch = Math.round(cw * ratioH / ratioW);
-            }
-            cw = Math.min(cw, this.width);
-            ch = Math.min(ch, this.height);
-            this.cropRect = {
-                x: Math.round((this.width - cw) / 2),
-                y: Math.round((this.height - ch) / 2),
-                w: cw,
-                h: ch,
-            };
-        }
-
-        applyCrop() {
-            if (!this.cropMode) return;
-            const cr = this.cropRect;
-            // Crop qilingan rasmni yangi canvasga chizish
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = cr.w;
-            tempCanvas.height = cr.h;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.drawImage(this.canvas, cr.x, cr.y, cr.w, cr.h, 0, 0, cr.w, cr.h);
-
-            // Qatlamlarni koordinatalarini yangilash
-            const offsetX = -cr.x;
-            const offsetY = -cr.y;
-            this.layers.forEach(layer => {
-                layer.x += offsetX;
-                layer.y += offsetY;
-                if (layer.type === 'shape') {
-                    // shape koordinatalari o'zgarmaydi, faqat x,y siljiydi
-                }
-                if (layer.type === 'drawing') {
-                    layer.points = layer.points.map(p => ({ x: p.x + offsetX, y: p.y + offsetY }));
-                }
-            });
-
-            // Canvasni yangilash
-            const newImg = new Image();
-            newImg.src = tempCanvas.toDataURL();
-            newImg.onload = () => {
-                this.baseImage = newImg;
-                this.baseImageOriginal = newImg;
-                this.width = cr.w;
-                this.height = cr.h;
-                this.canvas.width = this.width;
-                this.canvas.height = this.height;
-                this.imageW = cr.w;
-                this.imageH = cr.h;
-                this.imageX = 0;
-                this.imageY = 0;
-                this.cropMode = false;
-                this.cropPreset = null;
-                this.cropRect = { x: 0, y: 0, w: cr.w, h: cr.h };
-                this.currentFilter = 'none';
-                this.updateToolButtons();
-                this.updateCanvasCursor();
-                this.saveState();
-                this.render();
-                this.updateLayerList();
-                this.updatePropsPanel();
-                this.showToast('✅ Crop qo\'llandi! (' + cr.w + '×' + cr.h + 'px)');
-            };
-        }
-
-        cancelCrop() {
-            this.cropMode = false;
-            this.cropPreset = null;
-            this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.render();
-            this.showToast('↩️ Crop bekor qilindi');
-        }
-
-        // ==================== FLIP & ROTATE ====================
-        flipHorizontal() {
-            if (!this.baseImage) {
-                this.showToast('⚠️ Avval rasm yuklang');
-                return;
-            }
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = this.width;
-            tempCanvas.height = this.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.translate(this.width, 0);
-            tempCtx.scale(-1, 1);
-            tempCtx.drawImage(this.baseImage, 0, 0, this.width, this.height);
-            const newImg = new Image();
-            newImg.src = tempCanvas.toDataURL();
-            newImg.onload = () => {
-                this.baseImage = newImg;
-                this.baseImageOriginal = newImg;
-                this.currentFilter = 'none';
-                // Qatlamlarni ham flip qilish
-                this.layers.forEach(layer => {
-                    layer.x = this.width - layer.x;
-                });
-                this.saveState();
-                this.render();
-                this.showToast('↔️ Rasm gorizontal aylantirildi');
-            };
-        }
-
-        rotate90() {
-            if (!this.baseImage) {
-                this.showToast('⚠️ Avval rasm yuklang');
-                return;
-            }
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = this.height;
-            tempCanvas.height = this.width;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.translate(this.height, 0);
-            tempCtx.rotate(Math.PI / 2);
-            tempCtx.drawImage(this.baseImage, 0, 0, this.width, this.height);
-            const newImg = new Image();
-            newImg.src = tempCanvas.toDataURL();
-            newImg.onload = () => {
-                const oldW = this.width;
-                const oldH = this.height;
-                this.baseImage = newImg;
-                this.baseImageOriginal = newImg;
-                this.width = oldH;
-                this.height = oldW;
-                this.canvas.width = this.width;
-                this.canvas.height = this.height;
-                this.imageW = this.width;
-                this.imageH = this.height;
-                this.imageX = 0;
-                this.imageY = 0;
-                this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
-                this.currentFilter = 'none';
-                // Qatlamlarni aylantirish
-                this.layers.forEach(layer => {
-                    const oldX = layer.x;
-                    const oldY = layer.y;
-                    layer.x = oldY;
-                    layer.y = oldW - oldX;
-                });
-                this.saveState();
-                this.render();
-                this.showToast('🔄 Rasm 90° aylantirildi');
-            };
-        }
-
-        // ==================== GRID & ZOOM ====================
-        toggleGrid() {
-            this.gridEnabled = !this.gridEnabled;
-            this.render();
-            this.showToast(this.gridEnabled ? '📏 Grid yoqildi' : '📏 Grid o\'chirildi');
-        }
-
-        toggleZoom() {
-            if (this.zoomLevel >= 2) this.zoomLevel = 0.5;
-            else if (this.zoomLevel >= 1.5) this.zoomLevel = 2;
-            else if (this.zoomLevel >= 1) this.zoomLevel = 1.5;
-            else this.zoomLevel = 1;
-            const displayW = Math.round(this.width * this.zoomLevel);
-            this.canvas.style.width = displayW + 'px';
-            this.canvas.style.height = 'auto';
-            document.getElementById('zoomLabel').textContent = Math.round(this.zoomLevel * 100) + '%';
-            this.showToast('🔍 Zoom: ' + Math.round(this.zoomLevel * 100) + '%');
-        }
-
-        // ==================== UNDO / REDO ====================
-        saveState() {
-            const state = {
-                layers: JSON.parse(JSON.stringify(this.layers)),
-                filter: this.currentFilter,
-                width: this.width,
-                height: this.height,
-                imageW: this.imageW,
-                imageH: this.imageH,
-                imageX: this.imageX,
-                imageY: this.imageY,
-                cropRect: { ...this.cropRect },
-                baseImageSrc: this.baseImage ? this.canvasToDataURL() : null,
-            };
-            this.undoStack.push(state);
-            if (this.undoStack.length > this.maxUndo) this.undoStack.shift();
-            this.redoStack = [];
-        }
-
-        canvasToDataURL() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = this.width;
-            tempCanvas.height = this.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.fillStyle = '#ffffff';
-            tempCtx.fillRect(0, 0, this.width, this.height);
-            if (this.baseImage) {
-                tempCtx.drawImage(this.baseImage, this.imageX, this.imageY, this.imageW, this.imageH);
-            }
-            return tempCanvas.toDataURL('image/png');
-        }
-
-        undo() {
-            if (this.undoStack.length <= 1) {
-                this.showToast('↩️ Orqaga qaytarish uchun ma\'lumot yo\'q');
-                return;
-            }
-            const currentState = this.undoStack.pop();
-            this.redoStack.push(currentState);
-            const prevState = this.undoStack[this.undoStack.length - 1];
-            this.restoreState(prevState);
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            this.showToast('↩️ Orqaga qaytarildi');
-        }
-
-        redo() {
-            if (this.redoStack.length === 0) {
-                this.showToast('↪️ Oldinga qaytarish uchun ma\'lumot yo\'q');
-                return;
-            }
-            const nextState = this.redoStack.pop();
-            this.undoStack.push(nextState);
-            this.restoreState(nextState);
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            this.showToast('↪️ Oldinga qaytarildi');
-        }
-
-        restoreState(state) {
-            this.layers = JSON.parse(JSON.stringify(state.layers));
-            this.currentFilter = state.filter;
-            this.width = state.width;
-            this.height = state.height;
-            this.canvas.width = this.width;
-            this.canvas.height = this.height;
-            this.imageW = state.imageW;
-            this.imageH = state.imageH;
-            this.imageX = state.imageX;
-            this.imageY = state.imageY;
-            this.cropRect = state.cropRect || { x: 0, y: 0, w: this.width, h: this.height };
-            if (state.baseImageSrc) {
-                const img = new Image();
-                img.src = state.baseImageSrc;
-                img.onload = () => {
-                    this.baseImage = img;
-                    this.baseImageOriginal = img;
-                    this.render();
-                };
-            } else {
-                this.baseImage = null;
-                this.baseImageOriginal = null;
-            }
-            if (this.selectedLayerIndex >= this.layers.length) {
-                this.selectedLayerIndex = this.layers.length - 1;
-            }
-        }
-
-        // ==================== DELETE LAYER ====================
-        deleteSelectedLayer() {
-            if (this.selectedLayerIndex < 0 || this.selectedLayerIndex >= this.layers.length) return;
-            this.layers.splice(this.selectedLayerIndex, 1);
-            this.selectedLayerIndex = Math.min(this.selectedLayerIndex, this.layers.length - 1);
-            this.saveState();
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            this.showToast('🗑️ Qatlam o\'chirildi');
-        }
-
-        // ==================== RESET ====================
-        resetAll() {
-            if (!confirm('Barcha o\'zgarishlarni tozalashni xohlaysizmi?')) return;
-            this.baseImage = null;
-            this.baseImageOriginal = null;
-            this.layers = [];
-            this.selectedLayerIndex = -1;
-            this.currentFilter = 'none';
-            this.cropMode = false;
-            this.cropPreset = null;
-            this.gridEnabled = false;
-            this.zoomLevel = 1;
-            this.width = 800;
-            this.height = 800;
-            this.canvas.width = this.width;
-            this.canvas.height = this.height;
-            this.canvas.style.width = '';
-            this.canvas.style.height = '';
-            this.imageW = this.width;
-            this.imageH = this.height;
-            this.imageX = 0;
-            this.imageY = 0;
-            this.cropRect = { x: 0, y: 0, w: this.width, h: this.height };
-            this.undoStack = [];
-            this.redoStack = [];
-            this.currentTool = 'select';
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.saveState();
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            document.getElementById('zoomLabel').textContent = '100%';
-            this.showToast('🔄 Hammasi tozalandi');
-        }
-
-        // ==================== DOWNLOAD ====================
-        downloadPNG() {
-            this.download('png');
-        }
-
-        downloadJPG() {
-            this.download('jpg');
-        }
-
-        download(format) {
-            // Crop mode bo'lsa, avval cropni qo'llashni so'rash
-            if (this.cropMode) {
-                if (confirm('Crop rejimi faol. Avval cropni qo\'llashni xohlaysizmi?')) {
-                    this.applyCrop();
-                    setTimeout(() => this.doDownload(format), 300);
-                    return;
-                }
-            }
-            this.doDownload(format);
-        }
-
-        doDownload(format) {
-            // Eksport uchun vaqtinchalik render (gridsiz, crop overlaysiz)
-            const wasGrid = this.gridEnabled;
-            const wasCrop = this.cropMode;
-            const wasSel = this.selectedLayerIndex;
-            this.gridEnabled = false;
-            this.cropMode = false;
-            this.selectedLayerIndex = -1;
-            this.render();
-
-            const link = document.createElement('a');
-            const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
-            const ext = format === 'jpg' ? 'jpg' : 'png';
-            link.download = `creavify_${Date.now()}.${ext}`;
-            link.href = this.canvas.toDataURL(mime, format === 'jpg' ? 0.92 : undefined);
-            link.click();
-
-            // Qayta tiklash
-            this.gridEnabled = wasGrid;
-            this.cropMode = wasCrop;
-            this.selectedLayerIndex = wasSel;
-            this.render();
-            this.showToast('⬇ Rasm yuklab olindi! (' + ext.toUpperCase() + ')');
-        }
-
-        // ==================== UI YANGILASH ====================
-        updateLayerList() {
-            const list = document.getElementById('layerList');
-            let html = '';
-            html +=
-                `<div class="layer-item${this.selectedLayerIndex === -1 && this.baseImage ? ' selected' : ''}" onclick="editor.selectLayer(-1)" style="cursor:pointer;">
-              <span class="layer-icon">📷</span>
-              <span class="layer-name">Asosiy rasm</span>
-            </div>`;
-            this.layers.forEach((layer, i) => {
-                let icon = '📄';
-                let name = '';
-                if (layer.type === 'text') { icon = '🔤';
-                    name = layer.text?.substring(0, 25) || 'Matn'; } else if (layer.type === 'sticker') { icon =
-                        '😀';
-                    name = layer.emoji || 'Stiker'; } else if (layer.type === 'shape') { icon = layer
-                        .shapeType === 'circle' ? '⭕' : '⬜';
-                    name = layer.shapeType === 'circle' ? 'Doira' : 'To\'rtburchak'; } else if (layer.type ===
-                    'drawing') { icon = '✏️';
-                    name = 'Chizma'; }
-                html += `
-              <div class="layer-item${i === this.selectedLayerIndex ? ' selected' : ''}" onclick="editor.selectLayer(${i})">
-                <span class="layer-icon">${icon}</span>
-                <span class="layer-name">${name}</span>
-                <span class="layer-del" onclick="event.stopPropagation(); editor.selectLayer(${i}); editor.deleteSelectedLayer();">×</span>
-              </div>`;
-            });
-            list.innerHTML = html;
-            document.getElementById('btnDeleteLayer').style.display =
-                this.selectedLayerIndex >= 0 ? 'block' : 'none';
-        }
-
-        selectLayer(index) {
-            this.selectedLayerIndex = index;
-            this.currentTool = 'select';
-            this.cropMode = false;
-            this.updateToolButtons();
-            this.updateCanvasCursor();
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-        }
-
-        updatePropsPanel() {
-            const container = document.getElementById('propsContent');
-            const layer = this.selectedLayerIndex >= 0 ? this.layers[this.selectedLayerIndex] : null;
-
-            if (!layer) {
-                container.innerHTML =
-                    '<div class="no-selection">Element tanlang yoki yangi qo\'shing ✨<br><br><small>Maslahat: Canvasdagi elementni bosing yoki qatlamlar ro\'yxatidan tanlang</small></div>';
-                document.getElementById('btnDeleteLayer').style.display = 'none';
-                return;
-            }
-            document.getElementById('btnDeleteLayer').style.display = 'block';
-
-            let html = '';
-            html += `<label>Shaffoflik: ${Math.round((layer.opacity||1)*100)}%</label>
-            <input type="range" min="10" max="100" value="${Math.round((layer.opacity||1)*100)}" oninput="editor.updateLayerProp('opacity', this.value/100)">`;
-
-            if (layer.type === 'text') {
-                html += `<label>📝 Matn</label>
-            <input type="text" value="${this.escapeHtml(layer.text||'')}" onchange="editor.updateLayerProp('text', this.value)" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-family:inherit;">`;
-                html += `<label>🔤 Shrift</label>
-            <select onchange="editor.updateLayerProp('font', this.value)">
-              ${['Poppins','Roboto','Oswald','Pacifico','Bangers','Lobster','Montserrat','Playfair Display','Fredoka One','Arial','Impact','Verdana','Georgia','Courier New'].map(f => `<option value="${f}" ${(layer.font||'Poppins')===f?'selected':''}>${f}</option>`).join('')}
-            </select>`;
-                html +=
-                    `<label>📏 O'lcham: ${layer.fontSize||40}px</label>
-            <input type="range" min="12" max="150" value="${layer.fontSize||40}" oninput="editor.updateLayerProp('fontSize', parseInt(this.value))">`;
-                html += `<label>🎨 Rang</label>
-            <input type="color" value="${layer.color||'#ffffff'}" oninput="editor.updateLayerProp('color', this.value)">
-            <div class="color-presets">
-              ${['#ffffff','#000000','#ff4444','#ff8800','#ffdd00','#2ecc71','#3498db','#6c5ce7','#e91e63','#00bcd4'].map(c => `<span class="color-dot${layer.color===c?' active':''}" style="background:${c};" onclick="editor.updateLayerProp('color','${c}')"></span>`).join('')}
-            </div>`;
-                html +=
-                    `<label><input type="checkbox" ${layer.strokeEnabled?'checked':''} onchange="editor.updateLayerProp('strokeEnabled', this.checked)"> ✏️ Kontur</label>`;
-                if (layer.strokeEnabled) {
-                    html +=
-                        `<label>Kontur rangi</label><input type="color" value="${layer.strokeColor||'#000000'}" oninput="editor.updateLayerProp('strokeColor', this.value)">`;
-                    html +=
-                        `<label>Kontur qalinligi: ${layer.strokeWidth||2}</label><input type="range" min="1" max="10" value="${layer.strokeWidth||2}" oninput="editor.updateLayerProp('strokeWidth', parseInt(this.value))">`;
-                }
-                html +=
-                    `<label><input type="checkbox" ${layer.shadowEnabled?'checked':''} onchange="editor.updateLayerProp('shadowEnabled', this.checked)"> 🌑 Soya</label>`;
-            }
-
-            if (layer.type === 'sticker') {
-                html +=
-                    `<label>📏 Stiker o'lchami: ${layer.stickerSize||60}px</label>
-            <input type="range" min="20" max="200" value="${layer.stickerSize||60}" oninput="editor.updateLayerProp('stickerSize', parseInt(this.value))">`;
-                html +=
-                    `<label>😀 Emoji</label><div style="font-size:2rem;text-align:center;padding:10px;background:var(--surface2);border-radius:8px;">${layer.emoji||'😀'}</div>`;
-            }
-
-            if (layer.type === 'shape') {
-                html += `<label>📐 Eni: ${layer.shapeWidth||100}px</label>
-            <input type="range" min="20" max="500" value="${layer.shapeWidth||100}" oninput="editor.updateLayerProp('shapeWidth', parseInt(this.value))">`;
-                html += `<label>📏 Bo'yi: ${layer.shapeHeight||100}px</label>
-            <input type="range" min="20" max="500" value="${layer.shapeHeight||100}" oninput="editor.updateLayerProp('shapeHeight', parseInt(this.value))">`;
-                html += `<label>🎨 To'ldirish rangi</label>
-            <input type="color" value="${layer.fillColor||'rgba(108,92,231,0.4)'}" oninput="editor.updateLayerProp('fillColor', this.value)">`;
-                html += `<label>✏️ Chiziq rangi</label>
-            <input type="color" value="${layer.shapeStrokeColor||'#6c5ce7'}" oninput="editor.updateLayerProp('shapeStrokeColor', this.value)">`;
-                html +=
-                    `<label>Chiziq qalinligi: ${layer.shapeStrokeWidth||2}</label><input type="range" min="1" max="15" value="${layer.shapeStrokeWidth||2}" oninput="editor.updateLayerProp('shapeStrokeWidth', parseInt(this.value))">`;
-            }
-
-            if (layer.type === 'drawing') {
-                html += `<label>🎨 Chizish rangi</label>
-            <input type="color" value="${layer.brushColor||'#ff4444'}" oninput="editor.updateLayerProp('brushColor', this.value)">`;
-                html +=
-                    `<label>Qalinlik: ${layer.brushSize||4}px</label><input type="range" min="1" max="30" value="${layer.brushSize||4}" oninput="editor.updateLayerProp('brushSize', parseInt(this.value))">`;
-                html +=
-                    `<p style="font-size:0.7rem;color:var(--text2);">Nuqtalar soni: ${(layer.points||[]).length}</p>`;
-            }
-
-            container.innerHTML = html;
-        }
-
-        updateLayerProp(prop, value) {
-            if (this.selectedLayerIndex < 0 || this.selectedLayerIndex >= this.layers.length) return;
-            const layer = this.layers[this.selectedLayerIndex];
-            layer[prop] = value;
-            this.render();
-            this.updateLayerList();
-            this.updatePropsPanel();
-            // Kechiktirilgan saveState (slider uchun)
-            clearTimeout(this._saveTimeout);
-            this._saveTimeout = setTimeout(() => this.saveState(), 400);
-        }
-
-        escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // ==================== TOAST ====================
-        showToast(msg) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
-        }
-
-        // ==================== KLAVIATURA QISQA YO'LLARI ====================
-        handleKeyboard(e) {
-            if (e.ctrlKey && e.key === 'z') { e.preventDefault();
-                this.undo(); }
-            if (e.ctrlKey && e.key === 'y') { e.preventDefault();
-                this.redo(); }
-            if (e.ctrlKey && e.key === 's') { e.preventDefault();
-                this.downloadPNG(); }
-            if (e.key === 'Delete' && this.selectedLayerIndex >= 0) { e.preventDefault();
-                this.deleteSelectedLayer(); }
-            if (e.key === 'Escape') {
-                if (this.cropMode) { this.cancelCrop(); } else { this.selectedLayerIndex = -1;
-                    this.render();
-                    this.updateLayerList();
-                    this.updatePropsPanel(); }
-            }
-            if (e.key === 'g' && !e.ctrlKey) { this.toggleGrid(); }
-            if (e.key === 'f' && !e.ctrlKey) { this.toggleCropMode(); }
-        }
+/* ============================================================
+   QALAM STUDIO — single-file canvas image editor
+   ============================================================ */
+(function(){
+"use strict";
+
+/* ---------- constants ---------- */
+const PRESETS = [
+  {id:'ig-post', name:'Instagram Post', w:1080, h:1080},
+  {id:'ig-story', name:'Instagram Story', w:1080, h:1920},
+  {id:'fb-post', name:'Facebook Post', w:1200, h:630},
+  {id:'fb-cover', name:'Facebook Cover', w:820, h:312},
+  {id:'tw-post', name:'Twitter/X Post', w:1200, h:675},
+  {id:'li-banner', name:'LinkedIn Banner', w:1584, h:396},
+  {id:'yt-thumb', name:'YouTube Thumbnail', w:1280, h:720},
+  {id:'card', name:'Vizitka', w:1050, h:600},
+];
+
+const FONTS = ['Inter','Space Grotesk','Playfair Display','Bebas Neue','Pacifico','Poppins'];
+
+const EMOJIS = ['😀','😍','🔥','🎉','❤️','⭐','👍','😂','🙌','💯','🚀','✨','😎','🥳','👏','💡','📌','✅','⚡','🌟','🎯','💰','🏆','📸','🌈','☀️','🍀','🎁','📍','💬'];
+
+const TEMPLATES = [
+  {name:'Minimal Sarlavha', preset:'ig-post', bg:'#12141c', obj:{type:'text', text:'SARLAVHA', font:'Space Grotesk', size:90, color:'#e8b84b', bold:true}},
+  {name:'Meme (Yuqori/Past)', preset:'ig-post', bg:'#ffffff', obj:{type:'meme'}},
+  {name:'Sotuv e\'loni', preset:'ig-post', bg:'#e8b84b', obj:{type:'text', text:'CHEGIRMA 50%', font:'Bebas Neue', size:110, color:'#12141c', bold:false}},
+  {name:'Iqtibos (Quote)', preset:'ig-post', bg:'#1a1d29', obj:{type:'text', text:'"Har bir kun — yangi imkoniyat."', font:'Playfair Display', size:56, color:'#f4f2ee', bold:false}},
+  {name:'Vizitka — Klassik', preset:'card', bg:'#f4f2ee', obj:{type:'text', text:'Ism Familiya', font:'Space Grotesk', size:44, color:'#12141c', bold:true}},
+  {name:'Story — Bo\'sh', preset:'ig-story', bg:'#232735', obj:null},
+];
+
+const CAPTION_BANK = {
+  quvnoq: ["{kw} bilan bugun ajoyib kun! 🎉", "Kayfiyat cho'qqida — sababi {kw} ✨", "{kw} — hayotni yanada rangin qiladi 😄"],
+  ilhomlantiruvchi: ["Har bir qadam {kw} sari — bu g'alaba. 🚀", "{kw}: kichik harakatlar, katta natijalar.", "Bugun {kw} uchun bir qadam tashla — ertaga rahmat aytasan."],
+  rasmiy: ["{kw} sohasidagi yangiliklarimiz bilan tanishing.", "Professional yondashuv: {kw} bo'yicha yechimlarimiz.", "{kw} — sifat va ishonch bilan."],
+  hazil: ["{kw}... yana nima deyish mumkin 😂", "Bu {kw} meniki, mening {kw}im 🤷", "Hayot: {kw} bilan biroz yengilroq 😆"]
+};
+const HASHTAG_EXTRA = ['#uzbekistan','#tashkent','#instaday','#motivation','#trend','#viral'];
+
+/* ---------- state ---------- */
+let canvas;
+let currentPreset = PRESETS[0];
+let history = [];
+let historyIndex = -1;
+let isRestoring = false;
+let cropRectObj = null;
+
+/* ---------- init ---------- */
+window.addEventListener('DOMContentLoaded', () => {
+  canvas = new fabric.Canvas('c', {
+    backgroundColor: '#ffffff',
+    preserveObjectStacking: true,
+  });
+  setCanvasSize(currentPreset.w, currentPreset.h);
+  buildPresetBar();
+  buildEmojiGrid();
+  buildTemplates();
+  buildFiltersPanel();
+  loadBrandKit();
+  renderBrandColors();
+  wireEvents();
+  fitStage();
+  saveState(true);
+  updateLayerList();
+  updateInfo();
+  window.addEventListener('resize', fitStage);
+});
+
+/* ---------- canvas sizing / fit ---------- */
+function setCanvasSize(w,h){
+  canvas.setWidth(w);
+  canvas.setHeight(h);
+  canvas.renderAll();
+  fitStage();
+  updateInfo();
+}
+
+function fitStage(){
+  const wrap = document.getElementById('stage-wrap');
+  const stage = document.getElementById('stage');
+  const availW = wrap.clientWidth - 48;
+  const availH = wrap.clientHeight - 48;
+  const cw = canvas.getWidth(), ch = canvas.getHeight();
+  const scale = Math.min(availW/cw, availH/ch, 1);
+  const cc = stage.querySelector('.canvas-container');
+  stage.style.width = (cw*scale)+'px';
+  stage.style.height = (ch*scale)+'px';
+  if(cc){
+    cc.style.transform = `scale(${scale})`;
+    cc.style.transformOrigin = 'top left';
+    cc.style.position = 'absolute';
+    cc.style.top = '0'; cc.style.left = '0';
+  }
+  document.getElementById('infoZoom').textContent = Math.round(scale*100)+'%';
+}
+
+/* ---------- preset bar ---------- */
+function buildPresetBar(){
+  const bar = document.getElementById('preset-bar');
+  bar.innerHTML = '';
+  PRESETS.forEach(p=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (p.id===currentPreset.id?' active':'');
+    chip.textContent = `${p.name} (${p.w}×${p.h})`;
+    chip.onclick = ()=>{
+      currentPreset = p;
+      [...bar.children].forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      setCanvasSize(p.w,p.h);
+      saveState();
+      toast(`O'lcham o'zgartirildi: ${p.name}`);
+    };
+    bar.appendChild(chip);
+  });
+}
+
+/* ---------- toolrail wiring ---------- */
+function wireEvents(){
+  document.querySelectorAll('.tool').forEach(btn=>{
+    btn.addEventListener('click', ()=> handleTool(btn.dataset.tool, btn));
+  });
+
+  document.getElementById('fileInput').addEventListener('change', onFileChosen);
+
+  document.querySelectorAll('[data-close]').forEach(b=> b.addEventListener('click', closeAllModals));
+  document.querySelectorAll('.modal-overlay').forEach(m=>{
+    m.addEventListener('click', e=>{ if(e.target===m) closeAllModals(); });
+  });
+
+  document.getElementById('btnUndo').addEventListener('click', undo);
+  document.getElementById('btnRedo').addEventListener('click', redo);
+  document.getElementById('btnExport').addEventListener('click', openExportModal);
+  document.getElementById('btnSaveProject').addEventListener('click', saveProject);
+  document.getElementById('btnProjects').addEventListener('click', openProjectsModal);
+
+  document.querySelectorAll('.rp-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.rp-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.rp-pane').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('pane-'+tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // shape modal
+  document.querySelectorAll('#modal-shape [data-shape]').forEach(b=>{
+    b.addEventListener('click', ()=>{ addShape(b.dataset.shape); closeAllModals(); });
+  });
+
+  // crop
+  document.getElementById('cropAddBtn').addEventListener('click', addCropRect);
+  document.getElementById('cropApplyBtn').addEventListener('click', applyCrop);
+
+  // bg remove
+  const tolRange = document.getElementById('tolRange');
+  tolRange.addEventListener('input', ()=> document.getElementById('tolVal').textContent = tolRange.value);
+  document.getElementById('bgApplyBtn').addEventListener('click', applyBgRemove);
+
+  // brand
+  document.getElementById('addBrandColor').addEventListener('click', addBrandColor);
+
+  // caption
+  document.getElementById('genCaptionBtn').addEventListener('click', generateCaptions);
+
+  // export
+  document.querySelectorAll('#modal-export [data-fmt]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('#modal-export [data-fmt]').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    });
+  });
+  document.getElementById('doExportBtn').addEventListener('click', doExport);
+
+  // canvas events
+  canvas.on('object:modified', ()=>{ saveState(); updateLayerList(); });
+  canvas.on('object:added', ()=>{ updateLayerList(); updateInfo(); if(!isRestoring) saveState(); });
+  canvas.on('object:removed', ()=>{ updateLayerList(); updateInfo(); });
+  canvas.on('selection:created', ()=>{ updatePropsPanel(); onSelectionMobile(); });
+  canvas.on('selection:updated', ()=>{ updatePropsPanel(); onSelectionMobile(); });
+  canvas.on('selection:cleared', updatePropsPanel);
+
+  // mobile bottom-sheet panel
+  document.getElementById('panelToggle').addEventListener('click', ()=>{
+    document.getElementById('rightpanel').classList.toggle('show');
+  });
+  document.getElementById('rpCloseBtn').addEventListener('click', ()=>{
+    document.getElementById('rightpanel').classList.remove('show');
+  });
+
+  document.addEventListener('keydown', e=>{
+    const tag = (e.target.tagName||'').toLowerCase();
+    if(tag==='input' || tag==='select' || tag==='textarea') return;
+    if((e.ctrlKey||e.metaKey) && e.key==='z'){ e.preventDefault(); undo(); }
+    else if((e.ctrlKey||e.metaKey) && (e.key==='y' || (e.shiftKey&&e.key==='Z'))){ e.preventDefault(); redo(); }
+    else if((e.ctrlKey||e.metaKey) && e.key==='d'){ e.preventDefault(); duplicateSelected(); }
+    else if(e.key==='Delete' || e.key==='Backspace'){
+      const a = canvas.getActiveObject();
+      if(a){ e.preventDefault(); canvas.remove(a); canvas.discardActiveObject(); canvas.renderAll(); saveState(); }
     }
+  });
+}
 
-    // ==================== INIT ====================
-    const editor = new ImageEditor();
+function isMobile(){ return window.matchMedia('(max-width: 860px)').matches; }
+function onSelectionMobile(){
+  if(!isMobile()) return;
+  document.querySelectorAll('.rp-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.rp-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.rp-tab[data-tab="props"]').classList.add('active');
+  document.getElementById('pane-props').classList.add('active');
+  document.getElementById('rightpanel').classList.add('show');
+}
 
-    // Klaviatura qisqa yo'llari
-    document.addEventListener('keydown', (e) => editor.handleKeyboard(e));
+function handleTool(tool, btn){
+  document.querySelectorAll('.tool').forEach(t=>t.classList.remove('active'));
+  switch(tool){
+    case 'upload': document.getElementById('fileInput').click(); break;
+    case 'text': addText(); break;
+    case 'shape': openModal('modal-shape'); break;
+    case 'sticker': openModal('modal-sticker'); break;
+    case 'filters': openFiltersModal(); break;
+    case 'crop': openModal('modal-crop'); break;
+    case 'bgremove': openBgModal(); break;
+    case 'templates': openModal('modal-templates'); break;
+    case 'brand': openModal('modal-brand'); break;
+    case 'caption': openModal('modal-caption'); break;
+  }
+}
 
-    // Crop tugmasi uchun qo'shimcha handler
-    document.getElementById('btnCrop')?.addEventListener('click', function() {
-        if (editor.cropMode) {
-            editor.applyCrop();
-        } else {
-            editor.toggleCropMode();
-        }
+/* ---------- modals ---------- */
+function openModal(id){ closeAllModals(); document.getElementById(id).classList.add('show'); }
+function closeAllModals(){ document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('show')); }
+
+/* ---------- image upload ---------- */
+function onFileChosen(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    fabric.Image.fromURL(ev.target.result, img=>{
+      const maxDim = Math.min(canvas.getWidth(), canvas.getHeight()) * 0.8;
+      const scale = Math.min(maxDim/img.width, maxDim/img.height, 1);
+      img.set({
+        left: canvas.getWidth()/2,
+        top: canvas.getHeight()/2,
+        originX:'center', originY:'center',
+        scaleX: scale, scaleY: scale,
+      });
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+      saveState();
+      toast('Rasm qo\'shildi');
     });
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
 
-    // Text modal uchun Enter tugmasi
-    document.getElementById('textInput')?.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            editor.confirmAddText();
-        }
+/* ---------- text ---------- */
+function addText(str, opts){
+  const t = new fabric.IText(str || 'Matn kiriting', Object.assign({
+    left: canvas.getWidth()/2, top: canvas.getHeight()/2,
+    originX:'center', originY:'center',
+    fontFamily:'Inter', fontSize: Math.round(canvas.getWidth()*0.06),
+    fill:'#12141c', fontWeight:'400',
+  }, opts||{}));
+  canvas.add(t); canvas.setActiveObject(t); canvas.renderAll(); saveState();
+  return t;
+}
+
+/* ---------- shapes ---------- */
+function addShape(type){
+  const cx = canvas.getWidth()/2, cy = canvas.getHeight()/2;
+  const commonOpts = {left:cx, top:cy, originX:'center', originY:'center', fill:'#e8b84b', stroke:'#12141c', strokeWidth:0};
+  let obj;
+  if(type==='rect'){ obj = new fabric.Rect(Object.assign({width:220,height:150,rx:8,ry:8}, commonOpts)); }
+  else if(type==='circle'){ obj = new fabric.Circle(Object.assign({radius:100}, commonOpts)); }
+  else if(type==='triangle'){ obj = new fabric.Triangle(Object.assign({width:200,height:180}, commonOpts)); }
+  else if(type==='line'){ obj = new fabric.Line([cx-120,cy,cx+120,cy], {stroke:'#e8b84b', strokeWidth:6}); }
+  else if(type==='arrow'){
+    const line = new fabric.Line([-100,0,100,0], {stroke:'#e8b84b', strokeWidth:6});
+    const head = new fabric.Triangle({width:24,height:28, fill:'#e8b84b', left:100, top:0, angle:90, originX:'center', originY:'center'});
+    obj = new fabric.Group([line,head], {left:cx, top:cy, originX:'center', originY:'center'});
+  }
+  canvas.add(obj); canvas.setActiveObject(obj); canvas.renderAll(); saveState();
+}
+
+/* ---------- stickers ---------- */
+function buildEmojiGrid(){
+  const grid = document.getElementById('emojiGrid');
+  EMOJIS.forEach(em=>{
+    const b = document.createElement('button');
+    b.textContent = em;
+    b.onclick = ()=>{
+      const t = new fabric.Text(em, {
+        left: canvas.getWidth()/2, top: canvas.getHeight()/2,
+        originX:'center', originY:'center', fontSize: Math.round(canvas.getWidth()*0.12),
+      });
+      canvas.add(t); canvas.setActiveObject(t); canvas.renderAll(); saveState();
+      closeAllModals();
+      toast('Stiker qo\'shildi');
+    };
+    grid.appendChild(b);
+  });
+}
+
+/* ---------- layers panel ---------- */
+function iconForObject(obj){
+  if(obj.type==='image') return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+  if(obj.type==='i-text' || obj.type==='text') return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>`;
+  if(obj.type==='line') return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19L19 5"/></svg>`;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`;
+}
+function nameForObject(obj,i){
+  if(obj.type==='image') return 'Rasm '+(i+1);
+  if(obj.type==='i-text'||obj.type==='text') return (obj.text||'Matn').slice(0,18);
+  if(obj.type==='rect') return 'To\'rtburchak';
+  if(obj.type==='circle') return 'Doira';
+  if(obj.type==='triangle') return 'Uchburchak';
+  if(obj.type==='line') return 'Chiziq';
+  if(obj.type==='group') return 'Guruh/O\'q';
+  return obj.type;
+}
+
+function updateLayerList(){
+  const list = document.getElementById('layerList');
+  const empty = document.getElementById('layerEmpty');
+  const objs = canvas.getObjects().slice().reverse();
+  list.innerHTML = '';
+  empty.style.display = objs.length ? 'none':'block';
+  const active = canvas.getActiveObject();
+  objs.forEach((obj)=>{
+    const realIndex = canvas.getObjects().indexOf(obj);
+    const row = document.createElement('div');
+    row.className = 'layer-row' + (obj===active?' selected':'');
+    row.innerHTML = `
+      <div class="layer-icon">${iconForObject(obj)}</div>
+      <div class="lname">${nameForObject(obj,realIndex)}</div>
+      <button data-act="up" title="Yuqoriga">${arrowSVG('up')}</button>
+      <button data-act="down" title="Pastga">${arrowSVG('down')}</button>
+      <button data-act="vis" title="Ko'rsatish/Yashirish">${obj.visible===false? eyeOffSVG(): eyeSVG()}</button>
+      <button data-act="lock" title="Qulflash">${obj.selectable===false? lockSVG(): unlockSVG()}</button>
+      <button data-act="del" title="O'chirish">${trashSVG()}</button>
+    `;
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('button')) return;
+      canvas.setActiveObject(obj); canvas.renderAll(); updateLayerList(); updatePropsPanel();
     });
+    row.querySelector('[data-act="up"]').onclick = ()=>{ canvas.bringForward(obj); canvas.renderAll(); updateLayerList(); saveState(); };
+    row.querySelector('[data-act="down"]').onclick = ()=>{ canvas.sendBackwards(obj); canvas.renderAll(); updateLayerList(); saveState(); };
+    row.querySelector('[data-act="vis"]').onclick = ()=>{ obj.visible = obj.visible===false ? true:false; canvas.renderAll(); updateLayerList(); saveState(); };
+    row.querySelector('[data-act="lock"]').onclick = ()=>{
+      const locked = obj.selectable===false;
+      obj.selectable = locked; obj.evented = locked;
+      canvas.renderAll(); updateLayerList(); saveState();
+    };
+    row.querySelector('[data-act="del"]').onclick = ()=>{ canvas.remove(obj); canvas.renderAll(); updateLayerList(); saveState(); };
+    list.appendChild(row);
+  });
+  updateInfo();
+}
+function arrowSVG(dir){ return dir==='up' ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`; }
+function eyeSVG(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`; }
+function eyeOffSVG(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.6 19.6 0 0 1-2.17 3.19M1 1l22 22"/></svg>`; }
+function lockSVG(){ return `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>`; }
+function unlockSVG(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 7.6-1.8"/></svg>`; }
+function trashSVG(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 6"/></svg>`; }
 
-    // Boshlang'ich holatni saqlash
-    editor.saveState();
-    editor.render();
+/* ---------- properties panel ---------- */
+function updatePropsPanel(){
+  const el = document.getElementById('propsContent');
+  const obj = canvas.getActiveObject();
+  updateLayerList();
+  if(!obj){ el.innerHTML = '<div class="empty-hint">Xossalarni ko\'rish uchun canvasdan biror obyektni tanlang.</div>'; return; }
 
-    console.log('🎨 Creavify tayyor!');
-    console.log('📋 Xususiyatlar:');
-    console.log('  ✅ Rasm yuklash (drag & drop + fayl)');
-    console.log('  ✅ Matn qatlamlari (10+ shrift, rang, kontur, soya)');
-    console.log('  ✅ Stiker/emoji (50+ emoji)');
-    console.log('  ✅ Shakllar (to\'rtburchak, doira)');
-    console.log('  ✅ Chizish asbobi (erkin qo\'lda)');
-    console.log('  ✅ Filtrlar (8 xil: B/W, sepia, yorqin, kontrast, blur, invert, hue)');
-    console.log('  ✅ Instagram crop presets (1:1, 4:5, 9:16, 16:9)');
-    console.log('  ✅ Flip gorizontal, 90° aylantirish');
-    console.log('  ✅ Undo/Redo (50 qadamgacha)');
-    console.log('  ✅ Grid rejimi');
-    console.log('  ✅ Zoom (50% - 200%)');
-    console.log('  ✅ Qatlamlar boshqaruvi');
-    console.log('  ✅ Shaffoflik nazorati');
-    console.log('  ✅ Rang palitrasi');
-    console.log('  ✅ PNG/JPG eksport');
-    console.log('  ✅ Mobil moslashuvchan (touch + responsiv)');
-    console.log('  ✅ Klaviatura qisqa yo\'llari (Ctrl+Z/Y/S, Delete, Esc, G, F)');
-    console.log('  🚀 Jami 25+ xususiyat');
+  let html = '';
+  if(obj.type==='i-text' || obj.type==='text'){
+    html += fontFieldHTML(obj);
+    html += `<div class="field-row">
+      <div class="field"><label>O'lcham</label><input type="number" id="pFontSize" value="${Math.round(obj.fontSize)}"></div>
+      <div class="field"><label>Rang</label><input type="color" id="pColor" value="${toHex(obj.fill)}" style="height:36px;padding:2px;"></div>
+    </div>
+    <div class="field"><label>Uslub</label><div class="btn-grp">
+      <button id="pBold" class="${obj.fontWeight==='bold'||obj.fontWeight===700?'on':''}"><b>B</b></button>
+      <button id="pItalic" class="${obj.fontStyle==='italic'?'on':''}"><i>I</i></button>
+      <button id="pUnderline" class="${obj.underline?'on':''}"><u>U</u></button>
+    </div></div>
+    <div class="field"><label>Tekislash</label><div class="btn-grp">
+      <button id="pAlignL" class="${obj.textAlign==='left'?'on':''}">⯇</button>
+      <button id="pAlignC" class="${obj.textAlign==='center'?'on':''}">≡</button>
+      <button id="pAlignR" class="${obj.textAlign==='right'?'on':''}">⯈</button>
+    </div></div>`;
+  } else if(['rect','circle','triangle'].includes(obj.type)){
+    html += `<div class="field-row">
+      <div class="field"><label>To'ldirish</label><input type="color" id="pFill" value="${toHex(obj.fill)}" style="height:36px;padding:2px;"></div>
+      <div class="field"><label>Chegara</label><input type="color" id="pStroke" value="${toHex(obj.stroke||'#000000')}" style="height:36px;padding:2px;"></div>
+    </div>
+    <div class="field"><label>Chegara qalinligi: <span id="pSWVal">${obj.strokeWidth||0}</span></label><input type="range" id="pStrokeW" min="0" max="30" value="${obj.strokeWidth||0}"></div>`;
+  } else if(obj.type==='line'){
+    html += `<div class="field"><label>Rang</label><input type="color" id="pStroke" value="${toHex(obj.stroke)}" style="height:36px;padding:2px;"></div>
+    <div class="field"><label>Qalinlik: <span id="pSWVal">${obj.strokeWidth}</span></label><input type="range" id="pStrokeW" min="1" max="30" value="${obj.strokeWidth}"></div>`;
+  } else if(obj.type==='image'){
+    html += `<button class="mini-btn" id="pOpenFilters" style="width:100%;margin-bottom:10px;">🎛 Filtrlarni ochish</button>
+              <button class="mini-btn" id="pOpenBgRemove" style="width:100%;">🪄 Fonni olib tashlash</button>`;
+  }
+
+  html += `<div class="field" style="margin-top:16px;"><label>Shaffoflik: <span id="pOpVal">${Math.round((obj.opacity??1)*100)}%</span></label><input type="range" id="pOpacity" min="0" max="100" value="${Math.round((obj.opacity??1)*100)}"></div>`;
+  html += `<div class="section-title" style="margin-top:18px;">Tartib</div>
+    <div class="grid-2">
+      <button class="mini-btn" id="pFront">Eng oldinga</button>
+      <button class="mini-btn" id="pBack">Eng orqaga</button>
+      <button class="mini-btn" id="pFlipH">↔ Aylantirish</button>
+      <button class="mini-btn" id="pFlipV">↕ Aylantirish</button>
+      <button class="mini-btn" id="pDup">⧉ Nusxa (Ctrl+D)</button>
+      <button class="mini-btn" id="pDel" style="color:var(--danger);">🗑 O'chirish</button>
+    </div>`;
+
+  el.innerHTML = html;
+  bindPropsEvents(obj);
+}
+
+function fontFieldHTML(obj){
+  return `<div class="field"><label>Shrift</label><select id="pFont">${FONTS.map(f=>`<option value="${f}" ${obj.fontFamily===f?'selected':''} style="font-family:'${f}'">${f}</option>`).join('')}</select></div>`;
+}
+function toHex(c){
+  if(!c) return '#000000';
+  if(c[0]==='#') return c.length===7?c:'#000000';
+  const m = c.match(/\d+/g);
+  if(!m) return '#000000';
+  return '#'+m.slice(0,3).map(n=>(+n).toString(16).padStart(2,'0')).join('');
+}
+
+function bindPropsEvents(obj){
+  const $ = id=>document.getElementById(id);
+  const upd = (fn)=>{ fn(); canvas.renderAll(); saveState(); };
+
+  if($('pFont')) $('pFont').onchange = e=> upd(()=> obj.set('fontFamily', e.target.value));
+  if($('pFontSize')) $('pFontSize').onchange = e=> upd(()=> obj.set('fontSize', +e.target.value));
+  if($('pColor')) $('pColor').oninput = e=> upd(()=> obj.set('fill', e.target.value));
+  if($('pBold')) $('pBold').onclick = ()=> upd(()=>{ obj.set('fontWeight', obj.fontWeight==='bold'?'normal':'bold'); updatePropsPanel(); });
+  if($('pItalic')) $('pItalic').onclick = ()=> upd(()=>{ obj.set('fontStyle', obj.fontStyle==='italic'?'normal':'italic'); updatePropsPanel(); });
+  if($('pUnderline')) $('pUnderline').onclick = ()=> upd(()=>{ obj.set('underline', !obj.underline); updatePropsPanel(); });
+  if($('pAlignL')) $('pAlignL').onclick = ()=> upd(()=>{ obj.set('textAlign','left'); updatePropsPanel(); });
+  if($('pAlignC')) $('pAlignC').onclick = ()=> upd(()=>{ obj.set('textAlign','center'); updatePropsPanel(); });
+  if($('pAlignR')) $('pAlignR').onclick = ()=> upd(()=>{ obj.set('textAlign','right'); updatePropsPanel(); });
+
+  if($('pFill')) $('pFill').oninput = e=> upd(()=> obj.set('fill', e.target.value));
+  if($('pStroke')) $('pStroke').oninput = e=> upd(()=> obj.set('stroke', e.target.value));
+  if($('pStrokeW')) $('pStrokeW').oninput = e=>{ obj.set('strokeWidth', +e.target.value); $('pSWVal').textContent = e.target.value; canvas.renderAll(); };
+  if($('pStrokeW')) $('pStrokeW').onchange = ()=> saveState();
+
+  if($('pOpacity')) $('pOpacity').oninput = e=>{ obj.set('opacity', +e.target.value/100); $('pOpVal').textContent = e.target.value+'%'; canvas.renderAll(); };
+  if($('pOpacity')) $('pOpacity').onchange = ()=> saveState();
+
+  if($('pOpenFilters')) $('pOpenFilters').onclick = openFiltersModal;
+  if($('pOpenBgRemove')) $('pOpenBgRemove').onclick = openBgModal;
+
+  if($('pFront')) $('pFront').onclick = ()=> upd(()=> canvas.bringToFront(obj));
+  if($('pBack')) $('pBack').onclick = ()=> upd(()=> canvas.sendToBack(obj));
+  if($('pFlipH')) $('pFlipH').onclick = ()=> upd(()=> obj.set('flipX', !obj.flipX));
+  if($('pFlipV')) $('pFlipV').onclick = ()=> upd(()=> obj.set('flipY', !obj.flipY));
+  if($('pDup')) $('pDup').onclick = duplicateSelected;
+  if($('pDel')) $('pDel').onclick = ()=>{ canvas.remove(obj); canvas.discardActiveObject(); canvas.renderAll(); saveState(); updatePropsPanel(); };
+}
+
+function duplicateSelected(){
+  const obj = canvas.getActiveObject();
+  if(!obj) return;
+  obj.clone(clone=>{
+    clone.set({left: obj.left+20, top: obj.top+20});
+    canvas.add(clone);
+    canvas.setActiveObject(clone);
+    canvas.renderAll();
+    saveState();
+    toast('Nusxalandi');
+  });
+}
+
+/* ---------- filters ---------- */
+function buildFiltersPanel(){
+  const body = document.getElementById('filtersBody');
+  body.innerHTML = `
+    <div id="filtersNoImg" class="empty-hint">Filtr qo'llash uchun avval rasm tanlang.</div>
+    <div id="filtersControls" class="hidden">
+      <div class="field"><label>Yorqinlik: <span id="fBriVal">0</span></label><input type="range" id="fBri" min="-100" max="100" value="0"></div>
+      <div class="field"><label>Kontrast: <span id="fConVal">0</span></label><input type="range" id="fCon" min="-100" max="100" value="0"></div>
+      <div class="field"><label>To'yinganlik: <span id="fSatVal">0</span></label><input type="range" id="fSat" min="-100" max="100" value="0"></div>
+      <div class="field"><label>Xiralik (blur): <span id="fBlurVal">0</span></label><input type="range" id="fBlur" min="0" max="100" value="0"></div>
+      <div class="field"><label>Presetlar</label><div class="btn-grp">
+        <button class="mini-btn" data-fpreset="none">Asl</button>
+        <button class="mini-btn" data-fpreset="grayscale">Qora-oq</button>
+        <button class="mini-btn" data-fpreset="sepia">Sepia</button>
+        <button class="mini-btn" data-fpreset="vintage">Vintage</button>
+      </div></div>
+    </div>`;
+  ['fBri','fCon','fSat','fBlur'].forEach(id=>{
+    body.querySelector('#'+id).addEventListener('input', applyLiveFilters);
+    body.querySelector('#'+id).addEventListener('change', ()=> saveState());
+  });
+  body.querySelectorAll('[data-fpreset]').forEach(b=>{
+    b.addEventListener('click', ()=> applyFilterPreset(b.dataset.fpreset));
+  });
+}
+function openFiltersModal(){
+  const obj = canvas.getActiveObject();
+  openModal('modal-filters');
+  const noImg = document.getElementById('filtersNoImg');
+  const controls = document.getElementById('filtersControls');
+  if(!obj || obj.type!=='image'){ noImg.classList.remove('hidden'); controls.classList.add('hidden'); return; }
+  noImg.classList.add('hidden'); controls.classList.remove('hidden');
+  document.getElementById('fBri').value = obj._qBri||0;
+  document.getElementById('fCon').value = obj._qCon||0;
+  document.getElementById('fSat').value = obj._qSat||0;
+  document.getElementById('fBlur').value = obj._qBlur||0;
+  document.getElementById('fBriVal').textContent = obj._qBri||0;
+  document.getElementById('fConVal').textContent = obj._qCon||0;
+  document.getElementById('fSatVal').textContent = obj._qSat||0;
+  document.getElementById('fBlurVal').textContent = obj._qBlur||0;
+}
+function applyLiveFilters(){
+  const obj = canvas.getActiveObject();
+  if(!obj || obj.type!=='image') return;
+  const bri = +document.getElementById('fBri').value;
+  const con = +document.getElementById('fCon').value;
+  const sat = +document.getElementById('fSat').value;
+  const blur = +document.getElementById('fBlur').value;
+  document.getElementById('fBriVal').textContent = bri;
+  document.getElementById('fConVal').textContent = con;
+  document.getElementById('fSatVal').textContent = sat;
+  document.getElementById('fBlurVal').textContent = blur;
+  obj._qBri=bri; obj._qCon=con; obj._qSat=sat; obj._qBlur=blur;
+  const filters = [];
+  if(bri!==0) filters.push(new fabric.Image.filters.Brightness({brightness: bri/100}));
+  if(con!==0) filters.push(new fabric.Image.filters.Contrast({contrast: con/100}));
+  if(sat!==0) filters.push(new fabric.Image.filters.Saturation({saturation: sat/100}));
+  if(blur>0) filters.push(new fabric.Image.filters.Blur({blur: blur/100}));
+  if(obj._qGray) filters.push(new fabric.Image.filters.Grayscale());
+  if(obj._qSepia) filters.push(new fabric.Image.filters.Sepia());
+  obj.filters = filters;
+  obj.applyFilters();
+  canvas.renderAll();
+}
+function applyFilterPreset(name){
+  const obj = canvas.getActiveObject();
+  if(!obj || obj.type!=='image') return;
+  obj._qGray=false; obj._qSepia=false;
+  if(name==='none'){ obj._qBri=0;obj._qCon=0;obj._qSat=0;obj._qBlur=0; }
+  else if(name==='grayscale'){ obj._qGray=true; }
+  else if(name==='sepia'){ obj._qSepia=true; }
+  else if(name==='vintage'){ obj._qSepia=true; obj._qCon=-15; obj._qBri=5; }
+  document.getElementById('fBri').value = obj._qBri||0;
+  document.getElementById('fCon').value = obj._qCon||0;
+  document.getElementById('fSat').value = obj._qSat||0;
+  document.getElementById('fBlur').value = obj._qBlur||0;
+  applyLiveFilters();
+  saveState();
+}
+
+/* ---------- crop ---------- */
+function addCropRect(){
+  if(cropRectObj) canvas.remove(cropRectObj);
+  cropRectObj = new fabric.Rect({
+    left: canvas.getWidth()*0.15, top: canvas.getHeight()*0.15,
+    width: canvas.getWidth()*0.7, height: canvas.getHeight()*0.7,
+    fill:'rgba(232,184,75,0.15)', stroke:'#e8b84b', strokeDashArray:[8,6], strokeWidth:2,
+    cornerColor:'#e8b84b', cornerStyle:'circle', transparentCorners:false,
+  });
+  canvas.add(cropRectObj);
+  canvas.setActiveObject(cropRectObj);
+  canvas.renderAll();
+}
+function applyCrop(){
+  if(!cropRectObj){ toast('Avval kesish sohasini chizing'); return; }
+  const r = cropRectObj;
+  const left = r.left, top = r.top, w = r.getScaledWidth(), h = r.getScaledHeight();
+  canvas.remove(r);
+  canvas.getObjects().forEach(o=>{ o.left -= left; o.top -= top; o.setCoords(); });
+  cropRectObj = null;
+  currentPreset = {id:'custom', name:'Custom', w:Math.round(w), h:Math.round(h)};
+  setCanvasSize(Math.round(w), Math.round(h));
+  canvas.renderAll();
+  saveState();
+  closeAllModals();
+  toast('Canvas kesildi: '+Math.round(w)+'×'+Math.round(h));
+}
+
+/* ---------- background removal (flood fill from edges) ---------- */
+function openBgModal(){
+  const obj = canvas.getActiveObject();
+  if(!obj || obj.type!=='image'){ toast('Avval bir rasmni tanlang'); return; }
+  openModal('modal-bgremove');
+}
+function applyBgRemove(){
+  const obj = canvas.getActiveObject();
+  if(!obj || obj.type!=='image') return;
+  const tolerance = +document.getElementById('tolRange').value;
+  const imgEl = obj.getElement();
+  const w = imgEl.naturalWidth || imgEl.width, h = imgEl.naturalHeight || imgEl.height;
+  const off = document.createElement('canvas');
+  off.width = w; off.height = h;
+  const ctx = off.getContext('2d');
+  ctx.drawImage(imgEl, 0, 0, w, h);
+  let imgData;
+  try{ imgData = ctx.getImageData(0,0,w,h); }
+  catch(err){ toast('Xatolik: rasm tashqi manbadan (CORS) bo\'lishi mumkin'); return; }
+  const data = imgData.data;
+  const visited = new Uint8Array(w*h);
+  const stack = [];
+  const idx = (x,y)=> (y*w+x);
+  for(let x=0;x<w;x++){ stack.push([x,0]); stack.push([x,h-1]); }
+  for(let y=0;y<h;y++){ stack.push([0,y]); stack.push([w-1,y]); }
+  function colorAt(p){ const o=p*4; return [data[o],data[o+1],data[o+2]]; }
+  const seeds = [[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+  const refs = seeds.map(([x,y])=> colorAt(idx(x,y)));
+  function closeEnough(c){
+    return refs.some(rc=> Math.abs(c[0]-rc[0])<=tolerance && Math.abs(c[1]-rc[1])<=tolerance && Math.abs(c[2]-rc[2])<=tolerance);
+  }
+  while(stack.length){
+    const [x,y] = stack.pop();
+    if(x<0||y<0||x>=w||y>=h) continue;
+    const p = idx(x,y);
+    if(visited[p]) continue;
+    visited[p]=1;
+    const o = p*4;
+    const c = [data[o],data[o+1],data[o+2]];
+    if(!closeEnough(c)) continue;
+    data[o+3] = 0;
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+  ctx.putImageData(imgData,0,0);
+  const dataUrl = off.toDataURL('image/png');
+  fabric.Image.fromURL(dataUrl, newImg=>{
+    newImg.set({
+      left: obj.left, top: obj.top, angle: obj.angle,
+      scaleX: obj.scaleX, scaleY: obj.scaleY,
+      originX: obj.originX, originY: obj.originY,
+      flipX: obj.flipX, flipY: obj.flipY,
+    });
+    canvas.remove(obj);
+    canvas.add(newImg);
+    canvas.setActiveObject(newImg);
+    canvas.renderAll();
+    saveState();
+    closeAllModals();
+    toast('Fon olib tashlandi');
+  });
+}
+
+/* ---------- templates ---------- */
+function buildTemplates(){
+  const body = document.getElementById('templatesBody');
+  body.innerHTML = '';
+  TEMPLATES.forEach(t=>{
+    const preset = PRESETS.find(p=>p.id===t.preset);
+    const card = document.createElement('button');
+    card.className = 'mini-btn';
+    card.style.cssText = 'width:100%;justify-content:flex-start;margin-bottom:8px;padding:12px;';
+    card.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${t.bg};margin-right:10px;border:1px solid var(--line);"></span>${t.name} <span style="color:var(--text-dim);margin-left:auto;font-size:11px;">${preset.w}×${preset.h}</span>`;
+    card.onclick = ()=> applyTemplate(t);
+    body.appendChild(card);
+  });
+}
+function applyTemplate(t){
+  const preset = PRESETS.find(p=>p.id===t.preset);
+  currentPreset = preset;
+  buildPresetBar();
+  canvas.clear();
+  canvas.backgroundColor = t.bg;
+  setCanvasSize(preset.w, preset.h);
+  if(t.obj){
+    if(t.obj.type==='text'){
+      addText(t.obj.text, {fontFamily:t.obj.font, fontSize:t.obj.size, fill:t.obj.color, fontWeight: t.obj.bold?'bold':'normal', textAlign:'center'});
+    } else if(t.obj.type==='meme'){
+      addText('YUQORI MATN', {fontFamily:'Bebas Neue', fontSize:80, fill:'#ffffff', stroke:'#000000', strokeWidth:2, top: preset.h*0.12, textAlign:'center'});
+      addText('PAST MATN', {fontFamily:'Bebas Neue', fontSize:80, fill:'#ffffff', stroke:'#000000', strokeWidth:2, top: preset.h*0.85, textAlign:'center'});
+    }
+  }
+  canvas.renderAll();
+  saveState();
+  closeAllModals();
+  toast('Shablon qo\'llandi: '+t.name);
+}
+
+/* ---------- brand kit ---------- */
+let brandKit = {colors:[], fonts:['Space Grotesk','Inter']};
+function loadBrandKit(){
+  try{
+    const raw = localStorage.getItem('qalam_brandkit');
+    if(raw) brandKit = JSON.parse(raw);
+  }catch(e){}
+  if(!brandKit.colors) brandKit.colors=[];
+  if(!brandKit.fonts) brandKit.fonts=['Space Grotesk','Inter'];
+  renderBrandFonts();
+}
+function saveBrandKit(){ localStorage.setItem('qalam_brandkit', JSON.stringify(brandKit)); }
+function renderBrandColors(){
+  const wrap = document.getElementById('brandColors');
+  wrap.innerHTML = '';
+  if(!brandKit.colors.length){ wrap.innerHTML = '<p class="tip">Hali rang qo\'shilmagan.</p>'; }
+  brandKit.colors.forEach((c,i)=>{
+    const sw = document.createElement('button');
+    sw.className = 'swatch';
+    sw.style.background = c;
+    sw.title = c+' — bosib tanlangan obyektga qo\'llash';
+    sw.onclick = ()=>{
+      const obj = canvas.getActiveObject();
+      if(obj){ obj.set(obj.type==='i-text'||obj.type==='text'?'fill':'fill', c); canvas.renderAll(); saveState(); }
+      else{ canvas.backgroundColor = c; canvas.renderAll(); saveState(); }
+    };
+    wrap.appendChild(sw);
+  });
+}
+function addBrandColor(){
+  const c = document.getElementById('newBrandColor').value;
+  if(!brandKit.colors.includes(c)) brandKit.colors.push(c);
+  saveBrandKit(); renderBrandColors();
+  toast('Rang brend to\'plamiga qo\'shildi');
+}
+function renderBrandFonts(){
+  const wrap = document.getElementById('brandFonts');
+  wrap.innerHTML='';
+  brandKit.fonts.forEach(f=>{
+    const b = document.createElement('button');
+    b.className='font-btn';
+    b.style.fontFamily = f;
+    b.textContent = f;
+    b.onclick = ()=>{
+      const obj = canvas.getActiveObject();
+      if(obj && (obj.type==='i-text'||obj.type==='text')){ obj.set('fontFamily', f); canvas.renderAll(); saveState(); updatePropsPanel(); }
+      else addText('Matn kiriting', {fontFamily:f});
+    };
+    wrap.appendChild(b);
+  });
+}
+
+/* ---------- caption generator (offline template-based) ---------- */
+function generateCaptions(){
+  const kw = (document.getElementById('captionKeyword').value || 'g\'oya').trim();
+  const mood = document.getElementById('captionMood').value;
+  const bank = CAPTION_BANK[mood];
+  const results = document.getElementById('captionResults');
+  results.innerHTML = '';
+  bank.forEach(tmpl=>{
+    const text = tmpl.replaceAll('{kw}', kw);
+    const tags = ['#'+kw.replace(/\s+/g,'').toLowerCase(), ...HASHTAG_EXTRA.slice(0,3)].join(' ');
+    const card = document.createElement('div');
+    card.className = 'caption-card';
+    card.innerHTML = `<p>${text}</p><div class="tags">${tags}</div><button class="mini-btn" data-copy="${encodeURIComponent(text+' '+tags)}">📋 Nusxalash</button> <button class="mini-btn" data-add="${encodeURIComponent(text)}">+ Canvasga qo'shish</button>`;
+    results.appendChild(card);
+  });
+  results.querySelectorAll('[data-copy]').forEach(b=>{
+    b.onclick = ()=>{ navigator.clipboard.writeText(decodeURIComponent(b.dataset.copy)).then(()=> toast('Nusxalandi')); };
+  });
+  results.querySelectorAll('[data-add]').forEach(b=>{
+    b.onclick = ()=>{ addText(decodeURIComponent(b.dataset.add), {fontSize:44}); closeAllModals(); };
+  });
+}
+
+/* ---------- history (undo/redo) ---------- */
+function saveState(initial){
+  if(isRestoring) return;
+  const json = JSON.stringify(canvas.toJSON(['selectable','evented','visible']));
+  const snapshot = {json, w:canvas.getWidth(), h:canvas.getHeight(), bg:canvas.backgroundColor};
+  if(!initial){
+    history = history.slice(0, historyIndex+1);
+  } else {
+    history = [];
+  }
+  history.push(snapshot);
+  if(history.length>60) history.shift();
+  historyIndex = history.length-1;
+  updateUndoRedoBtns();
+}
+function restoreState(snapshot){
+  isRestoring = true;
+  canvas.setWidth(snapshot.w); canvas.setHeight(snapshot.h);
+  canvas.loadFromJSON(snapshot.json, ()=>{
+    canvas.backgroundColor = snapshot.bg;
+    canvas.renderAll();
+    isRestoring = false;
+    fitStage(); updateLayerList(); updatePropsPanel(); updateInfo();
+  });
+}
+function undo(){
+  if(historyIndex<=0) return;
+  historyIndex--;
+  restoreState(history[historyIndex]);
+  updateUndoRedoBtns();
+}
+function redo(){
+  if(historyIndex>=history.length-1) return;
+  historyIndex++;
+  restoreState(history[historyIndex]);
+  updateUndoRedoBtns();
+}
+function updateUndoRedoBtns(){
+  document.getElementById('btnUndo').disabled = historyIndex<=0;
+  document.getElementById('btnRedo').disabled = historyIndex>=history.length-1;
+}
+
+/* ---------- projects (local "cloud") ---------- */
+function saveProject(){
+  const name = document.getElementById('projName').value || 'Nomsiz loyiha';
+  let projects = getProjects();
+  const thumb = canvas.toDataURL({format:'png', multiplier: 120/canvas.getWidth()});
+  const json = JSON.stringify(canvas.toJSON(['selectable','evented','visible']));
+  const proj = {id: 'p_'+Date.now(), name, thumb, json, w:canvas.getWidth(), h:canvas.getHeight(), bg:canvas.backgroundColor, date: new Date().toLocaleString('uz-UZ')};
+  projects.unshift(proj);
+  if(projects.length>30) projects = projects.slice(0,30);
+  localStorage.setItem('qalam_projects', JSON.stringify(projects));
+  toast('Loyiha saqlandi (lokal)');
+}
+function getProjects(){
+  try{ return JSON.parse(localStorage.getItem('qalam_projects')) || []; }catch(e){ return []; }
+}
+function openProjectsModal(){
+  openModal('modal-projects');
+  const body = document.getElementById('projectsBody');
+  const projects = getProjects();
+  if(!projects.length){ body.innerHTML = '<div class="empty-hint">Hali saqlangan loyiha yo\'q.</div>'; return; }
+  body.innerHTML = '';
+  projects.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.innerHTML = `<img class="proj-thumb" src="${p.thumb}"><div class="proj-info"><div class="n">${p.name}</div><div class="d">${p.date} • ${p.w}×${p.h}</div></div>
+    <button class="mini-btn" data-load>Ochish</button><button class="mini-btn" data-del style="color:var(--danger);">🗑</button>`;
+    card.querySelector('[data-load]').onclick = ()=>{
+      document.getElementById('projName').value = p.name;
+      currentPreset = {id:'custom', name:'Custom', w:p.w, h:p.h};
+      restoreState({json:p.json, w:p.w, h:p.h, bg:p.bg});
+      saveState(true);
+      closeAllModals();
+      toast('Loyiha yuklandi');
+    };
+    card.querySelector('[data-del]').onclick = ()=>{
+      const rest = getProjects().filter(x=>x.id!==p.id);
+      localStorage.setItem('qalam_projects', JSON.stringify(rest));
+      openProjectsModal();
+    };
+    body.appendChild(card);
+  });
+}
+
+/* ---------- export ---------- */
+function openExportModal(){
+  document.getElementById('mx1sub').textContent = canvas.getWidth()+'×'+canvas.getHeight();
+  document.getElementById('mx2sub').textContent = (canvas.getWidth()*2)+'×'+(canvas.getHeight()*2);
+  document.getElementById('mx3sub').textContent = (canvas.getWidth()*3)+'×'+(canvas.getHeight()*3);
+  openModal('modal-export');
+}
+function doExport(){
+  const fmt = document.querySelector('#modal-export [data-fmt].on').dataset.fmt;
+  const withWm = document.getElementById('wmToggle').checked;
+  const doShare = document.getElementById('shareToggle').checked;
+  const mults = [];
+  if(document.getElementById('mx1').checked) mults.push(1);
+  if(document.getElementById('mx2').checked) mults.push(2);
+  if(document.getElementById('mx3').checked) mults.push(3);
+  if(!mults.length){ toast('Kamida bitta o\'lchamni tanlang'); return; }
+
+  let wmObj = null;
+  if(withWm){
+    wmObj = new fabric.Text('Qalam Studio', {
+      fontFamily:'Space Grotesk', fontSize: Math.round(canvas.getWidth()*0.025),
+      fill:'rgba(255,255,255,0.75)', left: canvas.getWidth()-14, top: canvas.getHeight()-14,
+      originX:'right', originY:'bottom', selectable:false, evented:false,
+      shadow: new fabric.Shadow({color:'rgba(0,0,0,0.5)', blur:4}),
+    });
+    canvas.add(wmObj);
+    canvas.renderAll();
+  }
+
+  const name = (document.getElementById('projName').value||'qalam-studio').replace(/[^\w\- ]/g,'').trim() || 'dizayn';
+  mults.forEach((m,i)=>{
+    setTimeout(()=>{
+      const dataUrl = canvas.toDataURL({format: fmt, quality:1, multiplier:m});
+      downloadDataUrl(dataUrl, `${name}-${m}x.${fmt==='jpeg'?'jpg':'png'}`);
+      if(i===mults.length-1){
+        if(wmObj){ canvas.remove(wmObj); canvas.renderAll(); }
+        closeAllModals();
+        toast('Eksport tayyor ✅');
+        if(doShare && navigator.share){
+          fetch(dataUrl).then(r=>r.blob()).then(blob=>{
+            const file = new File([blob], `${name}.${fmt==='jpeg'?'jpg':'png'}`, {type: blob.type});
+            navigator.share({files:[file], title:name}).catch(()=>{});
+          });
+        }
+      }
+    }, i*250);
+  });
+}
+function downloadDataUrl(dataUrl, filename){
+  const a = document.createElement('a');
+  a.href = dataUrl; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/* ---------- info bar ---------- */
+function updateInfo(){
+  document.getElementById('infoSize').textContent = canvas.getWidth()+' × '+canvas.getHeight();
+  document.getElementById('infoObjs').textContent = canvas.getObjects().length+' obyekt';
+}
+
+/* ---------- toast ---------- */
+function toast(msg){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className='toast'; t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 2400);
+}
+
+})();
 </script>
 </body>
 </html>
